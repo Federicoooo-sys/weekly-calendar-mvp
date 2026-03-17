@@ -1,0 +1,244 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { strings } from "@/constants/strings";
+import { categoryConfig } from "@/constants/categories";
+import { formatTimeRange, formatTime } from "@/lib/dates";
+import type { DayInfo, CalendarEvent, DayOfWeek, EventCategory } from "@/types";
+
+interface MobileWeekViewProps {
+  days: DayInfo[];
+  eventsByDay: Record<string, CalendarEvent[]>;
+}
+
+/** Returns a formatted current time string, e.g. "9:42 AM". */
+function getCurrentTimeLabel(): string {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  return formatTime(`${hh}:${mm}`);
+}
+
+export default function MobileWeekView({ days, eventsByDay }: MobileWeekViewProps) {
+  // Default to today, or Monday if today isn't in the current week
+  const todayKey = days.find((d) => d.isToday)?.dayKey ?? days[0].dayKey;
+  const [selectedDay, setSelectedDay] = useState<DayOfWeek>(todayKey);
+  const [currentTime, setCurrentTime] = useState<string>(getCurrentTimeLabel);
+
+  // Update current time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(getCurrentTimeLabel());
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const activeDay = days.find((d) => d.dayKey === selectedDay)!;
+  const dayEvents = eventsByDay[selectedDay] || [];
+
+  // Split into timed (sorted by startTime) and untimed
+  const timedEvents = dayEvents
+    .filter((e) => e.startTime)
+    .sort((a, b) => a.startTime!.localeCompare(b.startTime!));
+  const untimedEvents = dayEvents.filter((e) => !e.startTime);
+
+  return (
+    <div>
+      {/* ─── Week strip ─── */}
+      <div
+        className="flex justify-between items-center rounded-xl px-1 py-1 mb-4"
+        style={{ background: "var(--color-bg-secondary)" }}
+      >
+        {days.map((day) => {
+          const isSelected = day.dayKey === selectedDay;
+          const eventCount = (eventsByDay[day.dayKey] || []).length;
+
+          return (
+            <button
+              key={day.dayKey}
+              onClick={() => setSelectedDay(day.dayKey)}
+              className="flex flex-col items-center justify-center rounded-lg py-1 px-0 flex-1 min-w-0 transition-colors"
+              style={{
+                background: isSelected ? "var(--color-bg-primary)" : "transparent",
+                boxShadow: isSelected ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                opacity: day.isPast && !day.isToday && !isSelected ? 0.5 : 1,
+              }}
+            >
+              {/* Day letter */}
+              <span
+                className="text-[10px] font-medium uppercase leading-none"
+                style={{
+                  color: day.isToday
+                    ? "var(--color-accent)"
+                    : isSelected
+                      ? "var(--color-text-primary)"
+                      : "var(--color-text-muted)",
+                }}
+              >
+                {day.dayLetter}
+              </span>
+
+              {/* Day number */}
+              <span
+                className="text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full mt-0.5"
+                style={{
+                  background: day.isToday && isSelected
+                    ? "var(--color-accent)"
+                    : "transparent",
+                  color: day.isToday && isSelected
+                    ? "var(--color-bg-primary)"
+                    : day.isToday
+                      ? "var(--color-accent)"
+                      : isSelected
+                        ? "var(--color-text-primary)"
+                        : day.isPast
+                          ? "var(--color-text-muted)"
+                          : "var(--color-text-secondary)",
+                }}
+              >
+                {day.dayNumber}
+              </span>
+
+              {/* Event count dot */}
+              <div className="h-1.5 flex items-center">
+                {eventCount > 0 && (
+                  <span
+                    className="w-1 h-1 rounded-full"
+                    style={{
+                      background: isSelected
+                        ? "var(--color-accent)"
+                        : "var(--color-text-muted)",
+                    }}
+                  />
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ─── Selected day header ─── */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-baseline gap-2">
+          <h3
+            className="text-base font-semibold"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            {activeDay.dayLabel}
+          </h3>
+          <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+            {activeDay.dateLabel}
+          </span>
+          {activeDay.isToday && (
+            <span
+              className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+              style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
+            >
+              {currentTime}
+            </span>
+          )}
+        </div>
+
+        {/* Inline add button */}
+        <button
+          className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
+          style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
+          aria-label={strings.addEvent}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="7" y1="3" x2="7" y2="11" />
+            <line x1="3" y1="7" x2="11" y2="7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* ─── Day timeline ─── */}
+      {dayEvents.length === 0 ? (
+        <div className="py-10 text-center">
+          <p className="text-sm mb-1" style={{ color: "var(--color-text-muted)" }}>
+            {strings.noEvents}
+          </p>
+          <p className="text-xs" style={{ color: "var(--color-text-muted)", opacity: 0.7 }}>
+            {strings.addEvent}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          {/* Timed events */}
+          {timedEvents.map((event) => (
+            <MobileEventCard key={event.id} event={event} />
+          ))}
+
+          {/* Untimed events — separated only when both sections exist */}
+          {untimedEvents.length > 0 && timedEvents.length > 0 && (
+            <div className="py-1">
+              <div style={{ borderTop: "1px dashed var(--color-border)" }} />
+            </div>
+          )}
+          {untimedEvents.map((event) => (
+            <MobileEventCard key={event.id} event={event} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof typeof strings> = {
+  work: "categoryWork",
+  personal: "categoryPersonal",
+  health: "categoryHealth",
+  errand: "categoryErrand",
+  other: "categoryOther",
+};
+
+function MobileEventCard({ event }: { event: CalendarEvent }) {
+  const isCompleted = event.status === "completed";
+
+  return (
+    <div
+      className="flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer active:scale-[0.98] transition-transform"
+      style={{
+        background: "var(--color-bg-secondary)",
+        border: "1px solid var(--color-border)",
+        opacity: isCompleted ? 0.65 : 1,
+      }}
+    >
+      {/* Category color bar */}
+      <div
+        className="w-0.5 self-stretch rounded-full shrink-0 mt-0.5"
+        style={{ background: categoryConfig[event.category].colorVar, minHeight: "24px" }}
+      />
+
+      <div className="flex-1 min-w-0">
+        {/* Title */}
+        <span
+          className={`text-sm leading-snug block ${isCompleted ? "line-through" : ""}`}
+          style={{
+            color: isCompleted ? "var(--color-text-muted)" : "var(--color-text-primary)",
+          }}
+        >
+          {event.title}
+        </span>
+
+        {/* Time + category */}
+        <div className="flex items-center gap-1.5 mt-0.5">
+          {event.startTime && (
+            <span
+              className="text-xs"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              {formatTimeRange(event.startTime, event.endTime)}
+            </span>
+          )}
+          <span
+            className="text-xs"
+            style={{ color: categoryConfig[event.category].colorVar }}
+          >
+            {event.startTime ? "· " : ""}{strings[CATEGORY_LABEL_KEYS[event.category]]}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

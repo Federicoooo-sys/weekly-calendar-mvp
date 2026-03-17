@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* ─── Light theme (default) ─── */
+:root,
+[data-theme="light"] {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-nav-active: #3b82f6;
+  --color-nav-inactive: #6b7280;
+
+  /* Category colors */
+  --color-cat-work: #3b82f6;
+  --color-cat-personal: #8b5cf6;
+  --color-cat-health: #10b981;
+  --color-cat-errand: #f59e0b;
+  --color-cat-other: #6b7280;
+}
+
+/* ─── Dark theme ─── */
+[data-theme="dark"] {
+  --color-bg-primary: #111827;
+  --color-bg-secondary: #1f2937;
+  --color-bg-tertiary: #374151;
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-border: #374151;
+  --color-accent: #60a5fa;
+  --color-accent-hover: #3b82f6;
+  --color-nav-active: #60a5fa;
+  --color-nav-inactive: #9ca3af;
+
+  --color-cat-work: #60a5fa;
+  --color-cat-personal: #a78bfa;
+  --color-cat-health: #34d399;
+  --color-cat-errand: #fbbf24;
+  --color-cat-other: #9ca3af;
+}
+
+/* ─── Blue theme ─── */
+[data-theme="blue"] {
+  --color-bg-primary: #eff6ff;
+  --color-bg-secondary: #dbeafe;
+  --color-bg-tertiary: #bfdbfe;
+  --color-text-primary: #1e3a5f;
+  --color-text-secondary: #3b6da1;
+  --color-text-muted: #7da5cc;
+  --color-border: #93c5fd;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-nav-active: #1d4ed8;
+  --color-nav-inactive: #3b6da1;
+
+  --color-cat-work: #2563eb;
+  --color-cat-personal: #7c3aed;
+  --color-cat-health: #059669;
+  --color-cat-errand: #d97706;
+  --color-cat-other: #3b6da1;
+}
+
+@theme inline {
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
