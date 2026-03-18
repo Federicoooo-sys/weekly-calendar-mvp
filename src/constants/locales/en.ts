@@ -65,8 +65,22 @@ const en = {
   done: "Done",
   noEvents: "No events yet",
   addEvent: "Add event",
+  editEvent: "Edit event",
+  confirmDelete: "Tap again to delete",
   today: "Today",
   allDay: "All day",
+
+  // Event form fields
+  fieldTitle: "Title",
+  fieldTitlePlaceholder: "What's planned?",
+  fieldDay: "Day",
+  fieldStartTime: "Start",
+  fieldEndTime: "End",
+  fieldCategory: "Category",
+  fieldNote: "Note",
+  fieldNotePlaceholder: "Optional details...",
+  validationEndTimeAfterStart: "End time must be after start time",
+  validationTitleRequired: "Title is required",
 
   // Week page
   weekDateRange: "Week of {start}",

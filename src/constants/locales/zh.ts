@@ -67,8 +67,22 @@ const zh: LocaleStrings = {
   done: "完成",
   noEvents: "暂无事件",
   addEvent: "添加事件",
+  editEvent: "编辑事件",
+  confirmDelete: "再次点击以删除",
   today: "今天",
   allDay: "全天",
+
+  // Event form fields
+  fieldTitle: "标题",
+  fieldTitlePlaceholder: "计划做什么？",
+  fieldDay: "日期",
+  fieldStartTime: "开始",
+  fieldEndTime: "结束",
+  fieldCategory: "分类",
+  fieldNote: "备注",
+  fieldNotePlaceholder: "可选备注...",
+  validationEndTimeAfterStart: "结束时间必须晚于开始时间",
+  validationTitleRequired: "请输入标题",
 
   // Week page
   weekDateRange: "{start} 这一周",

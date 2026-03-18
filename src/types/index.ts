@@ -22,6 +22,8 @@ export interface CalendarEvent {
   endTime?: string;
   category: EventCategory;
   status: EventStatus;
+  /** Optional short note for context, e.g. "bring laptop" */
+  note?: string;
   /** ISO 8601 timestamp. Set once at creation. */
   createdAt: string;
 }

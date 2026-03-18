@@ -21,6 +21,8 @@ interface GridEventProps {
   columnCount: number;
   /** This event's column index within the overlap group (0-based) */
   columnIndex: number;
+  /** Called when the event is clicked */
+  onClick?: (event: CalendarEvent) => void;
 }
 
 /**
@@ -44,7 +46,7 @@ function getEventPosition(event: CalendarEvent, startHour: number) {
   return { top, height };
 }
 
-export default function GridEvent({ event, startHour, columnCount, columnIndex }: GridEventProps) {
+export default function GridEvent({ event, startHour, columnCount, columnIndex, onClick }: GridEventProps) {
   const pos = getEventPosition(event, startHour);
   if (!pos) return null;
 
@@ -58,6 +60,7 @@ export default function GridEvent({ event, startHour, columnCount, columnIndex }
 
   return (
     <div
+      onClick={() => onClick?.(event)}
       className="absolute rounded-md px-1.5 py-0.5 overflow-hidden cursor-pointer transition-opacity hover:opacity-100"
       style={{
         top: `${pos.top}px`,
@@ -89,6 +92,14 @@ export default function GridEvent({ event, startHour, columnCount, columnIndex }
           style={{ color: "var(--color-bg-primary)", opacity: 0.65 }}
         >
           {strings[CATEGORY_LABEL_KEYS[event.category]]}
+        </span>
+      )}
+      {isTall && event.note && (
+        <span
+          className="text-[9px] leading-tight block truncate mt-0.5"
+          style={{ color: "var(--color-bg-primary)", opacity: 0.5 }}
+        >
+          {event.note}
         </span>
       )}
     </div>

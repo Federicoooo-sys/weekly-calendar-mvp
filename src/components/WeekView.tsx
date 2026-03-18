@@ -1,17 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getCurrentWeekDays, getCurrentWeekStart, formatWeekRange } from "@/lib/dates";
-import { getMockWeek } from "@/data/mock";
+import { useWeekStorage } from "@/hooks/useWeekStorage";
 import WeekGrid from "./WeekGrid";
 import MobileWeekView from "./MobileWeekView";
+import EventFormModal, { type EventFormData } from "./EventFormModal";
 import { strings } from "@/constants/strings";
-import type { CalendarEvent } from "@/types";
+import type { CalendarEvent, DayOfWeek } from "@/types";
+
+/** Modal can be in add mode (just a dayKey) or edit mode (an existing event). */
+type ModalState =
+  | { mode: "add"; dayKey: DayOfWeek }
+  | { mode: "edit"; event: CalendarEvent }
+  | null;
 
 export default function WeekView() {
-  const week = getMockWeek();
+  const { week, addEvent, updateEvent, deleteEvent } = useWeekStorage();
   const weekDays = getCurrentWeekDays("mon");
   const weekRange = formatWeekRange(getCurrentWeekStart());
+
+  const [modalState, setModalState] = useState<ModalState>(null);
 
   // Group events by day — computed once, shared by both layouts
   const eventsByDay = useMemo(() => {
@@ -23,6 +32,46 @@ export default function WeekView() {
   }, [week.events, weekDays]);
 
   const totalEvents = week.events.length;
+
+  function handleAddEvent(dayKey: DayOfWeek) {
+    setModalState({ mode: "add", dayKey });
+  }
+
+  function handleEditEvent(event: CalendarEvent) {
+    setModalState({ mode: "edit", event });
+  }
+
+  function handleSave(data: EventFormData) {
+    if (modalState?.mode === "edit") {
+      updateEvent(modalState.event.id, {
+        title: data.title.trim(),
+        dayKey: data.dayKey,
+        startTime: data.startTime || undefined,
+        endTime: data.endTime || undefined,
+        category: data.category,
+        note: data.note?.trim() || undefined,
+      });
+    } else {
+      addEvent({
+        title: data.title,
+        dayKey: data.dayKey,
+        startTime: data.startTime || undefined,
+        endTime: data.endTime || undefined,
+        category: data.category,
+        note: data.note || undefined,
+      });
+    }
+    setModalState(null);
+  }
+
+  function handleDelete(id: string) {
+    deleteEvent(id);
+    setModalState(null);
+  }
+
+  function handleCloseModal() {
+    setModalState(null);
+  }
 
   return (
     <div>
@@ -50,13 +99,25 @@ export default function WeekView() {
 
       {/* Desktop: time grid calendar */}
       <div className="hidden md:block">
-        <WeekGrid days={weekDays} eventsByDay={eventsByDay} />
+        <WeekGrid days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} />
       </div>
 
       {/* Mobile: week strip + day timeline */}
       <div className="md:hidden">
-        <MobileWeekView days={weekDays} eventsByDay={eventsByDay} />
+        <MobileWeekView days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} />
       </div>
+
+      {/* Add/Edit event modal */}
+      {modalState && (
+        <EventFormModal
+          days={weekDays}
+          initialDayKey={modalState.mode === "add" ? modalState.dayKey : modalState.event.dayKey}
+          event={modalState.mode === "edit" ? modalState.event : undefined}
+          onSave={handleSave}
+          onDelete={modalState.mode === "edit" ? handleDelete : undefined}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 }

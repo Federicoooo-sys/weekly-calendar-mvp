@@ -5,7 +5,7 @@ import { strings } from "@/constants/strings";
 import { formatTime } from "@/lib/dates";
 import { categoryConfig } from "@/constants/categories";
 import GridEvent, { SLOT_HEIGHT, layoutEvents } from "./GridEvent";
-import type { DayInfo, CalendarEvent } from "@/types";
+import type { DayInfo, DayOfWeek, CalendarEvent } from "@/types";
 
 /** Visible hour range for the grid */
 const START_HOUR = 6;
@@ -19,6 +19,8 @@ const GUTTER_WIDTH = 52;
 interface WeekGridProps {
   days: DayInfo[];
   eventsByDay: Record<string, CalendarEvent[]>;
+  onAddEvent: (dayKey: DayOfWeek) => void;
+  onEventClick: (event: CalendarEvent) => void;
 }
 
 /** Returns the pixel offset of the current time from START_HOUR, or null if outside range. */
@@ -31,7 +33,7 @@ function getCurrentTimeOffset(): number | null {
   return ((totalMinutes - startMinutes) / 15) * SLOT_HEIGHT;
 }
 
-export default function WeekGrid({ days, eventsByDay }: WeekGridProps) {
+export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick }: WeekGridProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [timeOffset, setTimeOffset] = useState<number | null>(getCurrentTimeOffset);
 
@@ -90,6 +92,7 @@ export default function WeekGrid({ days, eventsByDay }: WeekGridProps) {
             </span>
             {/* Add event button — appears on hover */}
             <button
+              onClick={() => onAddEvent(day.dayKey)}
               className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
               style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
               aria-label={`${strings.addEvent} — ${day.dayLabel}`}
@@ -104,7 +107,7 @@ export default function WeekGrid({ days, eventsByDay }: WeekGridProps) {
       </div>
 
       {/* ─── All-day / untimed events row ─── */}
-      <AllDayRow days={days} eventsByDay={eventsByDay} />
+      <AllDayRow days={days} eventsByDay={eventsByDay} onEventClick={onEventClick} />
 
       {/* ─── Scrollable time grid ─── */}
       <div
@@ -184,6 +187,7 @@ export default function WeekGrid({ days, eventsByDay }: WeekGridProps) {
                     startHour={START_HOUR}
                     columnCount={columnCount}
                     columnIndex={columnIndex}
+                    onClick={onEventClick}
                   />
                 ))}
 
@@ -218,9 +222,11 @@ export default function WeekGrid({ days, eventsByDay }: WeekGridProps) {
 function AllDayRow({
   days,
   eventsByDay,
+  onEventClick,
 }: {
   days: DayInfo[];
   eventsByDay: Record<string, CalendarEvent[]>;
+  onEventClick: (event: CalendarEvent) => void;
 }) {
   const hasAnyUntimed = days.some((day) =>
     (eventsByDay[day.dayKey] || []).some((e) => !e.startTime)
@@ -258,6 +264,7 @@ function AllDayRow({
             {untimedEvents.map((event) => (
               <div
                 key={event.id}
+                onClick={() => onEventClick(event)}
                 className="flex items-center gap-1 rounded px-1 py-0.5 cursor-pointer hover:opacity-100 transition-opacity"
                 style={{
                   background: categoryConfig[event.category].colorVar,

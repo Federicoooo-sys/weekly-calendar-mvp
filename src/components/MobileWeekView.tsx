@@ -9,6 +9,8 @@ import type { DayInfo, CalendarEvent, DayOfWeek, EventCategory } from "@/types";
 interface MobileWeekViewProps {
   days: DayInfo[];
   eventsByDay: Record<string, CalendarEvent[]>;
+  onAddEvent: (dayKey: DayOfWeek) => void;
+  onEventClick: (event: CalendarEvent) => void;
 }
 
 /** Returns a formatted current time string, e.g. "9:42 AM". */
@@ -19,7 +21,7 @@ function getCurrentTimeLabel(): string {
   return formatTime(`${hh}:${mm}`);
 }
 
-export default function MobileWeekView({ days, eventsByDay }: MobileWeekViewProps) {
+export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventClick }: MobileWeekViewProps) {
   // Default to today, or Monday if today isn't in the current week
   const todayKey = days.find((d) => d.isToday)?.dayKey ?? days[0].dayKey;
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>(todayKey);
@@ -57,7 +59,7 @@ export default function MobileWeekView({ days, eventsByDay }: MobileWeekViewProp
             <button
               key={day.dayKey}
               onClick={() => setSelectedDay(day.dayKey)}
-              className="flex flex-col items-center justify-center rounded-lg py-1 px-0 flex-1 min-w-0 transition-colors"
+              className="flex flex-col items-center justify-center rounded-lg py-1.5 px-0 flex-1 min-w-0 transition-colors"
               style={{
                 background: isSelected ? "var(--color-bg-primary)" : "transparent",
                 boxShadow: isSelected ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
@@ -139,44 +141,49 @@ export default function MobileWeekView({ days, eventsByDay }: MobileWeekViewProp
           )}
         </div>
 
-        {/* Inline add button */}
+        {/* Add button — 36px for comfortable thumb target */}
         <button
-          className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
+          onClick={() => onAddEvent(selectedDay)}
+          className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
           style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
           aria-label={strings.addEvent}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="7" y1="3" x2="7" y2="11" />
-            <line x1="3" y1="7" x2="11" y2="7" />
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="8" y1="3" x2="8" y2="13" />
+            <line x1="3" y1="8" x2="13" y2="8" />
           </svg>
         </button>
       </div>
 
       {/* ─── Day timeline ─── */}
       {dayEvents.length === 0 ? (
-        <div className="py-10 text-center">
+        <button
+          onClick={() => onAddEvent(selectedDay)}
+          className="w-full py-10 text-center cursor-pointer rounded-xl transition-colors active:scale-[0.99]"
+          style={{ background: "var(--color-bg-secondary)" }}
+        >
           <p className="text-sm mb-1" style={{ color: "var(--color-text-muted)" }}>
             {strings.noEvents}
           </p>
-          <p className="text-xs" style={{ color: "var(--color-text-muted)", opacity: 0.7 }}>
-            {strings.addEvent}
+          <p className="text-xs font-medium" style={{ color: "var(--color-accent)" }}>
+            + {strings.addEvent}
           </p>
-        </div>
+        </button>
       ) : (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {/* Timed events */}
           {timedEvents.map((event) => (
-            <MobileEventCard key={event.id} event={event} />
+            <MobileEventCard key={event.id} event={event} onClick={onEventClick} />
           ))}
 
           {/* Untimed events — separated only when both sections exist */}
           {untimedEvents.length > 0 && timedEvents.length > 0 && (
-            <div className="py-1">
+            <div className="py-0.5">
               <div style={{ borderTop: "1px dashed var(--color-border)" }} />
             </div>
           )}
           {untimedEvents.map((event) => (
-            <MobileEventCard key={event.id} event={event} />
+            <MobileEventCard key={event.id} event={event} onClick={onEventClick} />
           ))}
         </div>
       )}
@@ -192,12 +199,13 @@ const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof typeof strings> = {
   other: "categoryOther",
 };
 
-function MobileEventCard({ event }: { event: CalendarEvent }) {
+function MobileEventCard({ event, onClick }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void }) {
   const isCompleted = event.status === "completed";
 
   return (
     <div
-      className="flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer active:scale-[0.98] transition-transform"
+      onClick={() => onClick(event)}
+      className="flex items-start gap-3 rounded-xl px-3.5 py-3 cursor-pointer active:scale-[0.98] transition-transform"
       style={{
         background: "var(--color-bg-secondary)",
         border: "1px solid var(--color-border)",
@@ -238,6 +246,16 @@ function MobileEventCard({ event }: { event: CalendarEvent }) {
             {event.startTime ? "· " : ""}{strings[CATEGORY_LABEL_KEYS[event.category]]}
           </span>
         </div>
+
+        {/* Note preview — single line, truncated */}
+        {event.note && (
+          <p
+            className="text-xs mt-1 truncate"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            {event.note}
+          </p>
+        )}
       </div>
     </div>
   );
