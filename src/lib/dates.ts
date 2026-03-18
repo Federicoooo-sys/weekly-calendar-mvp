@@ -1,7 +1,21 @@
 import type { DayOfWeek, DayInfo, TimeSlot, CalendarEvent } from "@/types";
-import { getStrings, type LocaleStrings } from "@/constants/strings";
+import { getStrings, getLocale, type LocaleStrings } from "@/constants/strings";
 
 export type EventTimingState = "upcoming" | "active" | "past";
+
+/**
+ * Safely parses "HH:mm" to [hours, minutes]. Returns null if malformed.
+ * Guards against corrupted data from localStorage.
+ */
+export function parseTime(time: string): [number, number] | null {
+  if (!time || typeof time !== "string") return null;
+  const parts = time.split(":");
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return null;
+  return [h, m];
+}
 
 const DAY_ORDER: DayOfWeek[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
@@ -147,14 +161,15 @@ export function getEventTimingState(event: CalendarEvent, weekStart: string): Ev
     return "upcoming";
   }
 
-  const [sh, sm] = event.startTime.split(":").map(Number);
-  const startMinutes = sh * 60 + sm;
+  const startParsed = parseTime(event.startTime);
+  if (!startParsed) return "upcoming"; // Malformed time — treat as untimed
+  const startMinutes = startParsed[0] * 60 + startParsed[1];
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
   let endMinutes: number;
-  if (event.endTime) {
-    const [eh, em] = event.endTime.split(":").map(Number);
-    endMinutes = eh * 60 + em;
+  const endParsed = event.endTime ? parseTime(event.endTime) : null;
+  if (endParsed) {
+    endMinutes = endParsed[0] * 60 + endParsed[1];
   } else {
     endMinutes = startMinutes + 30; // default 30min duration
   }
@@ -170,7 +185,8 @@ export function getEventTimingState(event: CalendarEvent, weekStart: string): Ev
  * Formats a Date as "Mar 17" style short date.
  */
 export function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const locale = getLocale() === "zh" ? "zh-CN" : "en-US";
+  return date.toLocaleDateString(locale, { month: "short", day: "numeric" });
 }
 
 /**
@@ -187,9 +203,10 @@ export function formatWeekRange(weekStart: string): string {
  * Formats "HH:mm" (24h) to "9:00 AM" style display string.
  */
 export function formatTime(time: string): string {
-  const [hourStr, minuteStr] = time.split(":");
-  const hour = parseInt(hourStr, 10);
-  const minute = minuteStr || "00";
+  const parsed = parseTime(time);
+  if (!parsed) return time; // Return raw string if unparseable
+  const [hour, min] = parsed;
+  const minute = String(min).padStart(2, "0");
   const period = hour >= 12 ? "PM" : "AM";
   const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
   return `${displayHour}:${minute} ${period}`;
@@ -206,8 +223,13 @@ export function formatTimeRange(startTime: string, endTime?: string): string {
 
 // ─── Time grid ───
 
-/** Cached time slots — generated once. */
+/** Cached time slots — regenerated when locale changes. */
 let cachedTimeSlots: TimeSlot[] | null = null;
+
+/** Call when locale changes to invalidate cached time slot labels. */
+export function clearTimeSlotCache(): void {
+  cachedTimeSlots = null;
+}
 
 /**
  * Returns 96 time slots (24 hours × 4 per hour) in 15-minute increments.

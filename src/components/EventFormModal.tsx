@@ -1,20 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getStrings, type LocaleStrings } from "@/constants/strings";
-import { categoryConfig } from "@/constants/categories";
+import { getStrings } from "@/constants/strings";
+import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { getTimeSlots } from "@/lib/dates";
 import type { CalendarEvent, DayInfo, DayOfWeek, EventCategory, EventStatus } from "@/types";
 
 const CATEGORIES: EventCategory[] = ["work", "personal", "health", "errand", "other"];
-
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
-  work: "categoryWork",
-  personal: "categoryPersonal",
-  health: "categoryHealth",
-  errand: "categoryErrand",
-  other: "categoryOther",
-};
 
 /** Time options for the select dropdowns — 15-min increments rendered once. */
 const TIME_OPTIONS = getTimeSlots().map((slot) => ({
@@ -113,6 +105,9 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
     // Backdrop — handles dismiss on click outside the modal
     <div
       className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label={isEditing ? strings.editEvent : strings.addEvent}
     >
       {/* Dim overlay — click to dismiss */}
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />

@@ -49,7 +49,7 @@ export default function RootLayout({
         <PreferencesProvider>
           <Sidebar />
           {/* Main content area: offset on desktop for sidebar, bottom padding on mobile for nav */}
-          <main className="min-h-screen pb-16 md:pb-0 md:pl-56">
+          <main className="min-h-screen pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0 md:pl-56">
             {children}
           </main>
           <BottomNav />

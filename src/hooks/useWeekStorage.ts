@@ -22,7 +22,7 @@ function loadWeek(weekStart: string): Week {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.events)) {
-        return { weekStart, events: parsed.events };
+        return { weekStart, events: parsed.events.filter(isValidEvent) };
       }
     }
   } catch {
@@ -32,6 +32,23 @@ function loadWeek(weekStart: string): Week {
 }
 
 const VALID_DAYS: Set<string> = new Set(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]);
+const VALID_CATEGORIES: Set<string> = new Set(["work", "personal", "health", "errand", "other"]);
+const VALID_STATUSES: Set<string> = new Set(["planned", "completed", "skipped"]);
+
+/** Filters out corrupted events when loading from localStorage. */
+export function isValidEvent(e: unknown): e is CalendarEvent {
+  if (!e || typeof e !== "object") return false;
+  const ev = e as Record<string, unknown>;
+  return (
+    typeof ev.id === "string" &&
+    typeof ev.title === "string" &&
+    ev.title.trim().length > 0 &&
+    typeof ev.dayKey === "string" &&
+    VALID_DAYS.has(ev.dayKey) &&
+    VALID_CATEGORIES.has(ev.category as string) &&
+    VALID_STATUSES.has(ev.status as string)
+  );
+}
 
 /** Guards at the data boundary — rejects obviously invalid event data. */
 function validateEventData(data: { title?: string; dayKey?: DayOfWeek; startTime?: string; endTime?: string }): void {

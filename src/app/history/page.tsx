@@ -3,19 +3,11 @@
 import { useState, useMemo } from "react";
 import PageShell from "@/components/PageShell";
 import PastWeekDetail from "@/components/PastWeekDetail";
-import { getStrings, type LocaleStrings } from "@/constants/strings";
-import { categoryConfig } from "@/constants/categories";
+import { getStrings } from "@/constants/strings";
+import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { formatWeekRange } from "@/lib/dates";
 import { getPastWeeks, getWeekSummary, type WeekSummary } from "@/lib/history";
 import type { Week, EventCategory } from "@/types";
-
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
-  work: "categoryWork",
-  personal: "categoryPersonal",
-  health: "categoryHealth",
-  errand: "categoryErrand",
-  other: "categoryOther",
-};
 
 export default function HistoryPage() {
   const strings = getStrings();

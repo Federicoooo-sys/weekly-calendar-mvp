@@ -1,4 +1,5 @@
 import type { Week, CalendarEvent, EventCategory, DayOfWeek } from "@/types";
+import { isValidEvent } from "@/hooks/useWeekStorage";
 import { getCurrentWeekStart, getOrderedDays, getDateForDay, formatShortDate } from "./dates";
 import { getStrings, type LocaleStrings } from "@/constants/strings";
 
@@ -53,7 +54,7 @@ export function getPastWeeks(): Week[] {
       try {
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.events)) {
-          weeks.push({ weekStart, events: parsed.events });
+          weeks.push({ weekStart, events: parsed.events.filter(isValidEvent) });
         }
       } catch {
         // Skip corrupted entries

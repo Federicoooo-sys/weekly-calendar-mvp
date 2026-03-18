@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 import { setLocale, getStrings, type SupportedLocale, type LocaleStrings } from "@/constants/strings";
+import { clearTimeSlotCache } from "@/lib/dates";
 
 type Theme = "light" | "dark" | "blue";
 
@@ -51,6 +52,12 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<SupportedLocale>("en");
   const [t, setT] = useState<LocaleStrings>(getStrings);
 
+  // Refs to avoid stale closures in callbacks
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
+  const languageRef = useRef(language);
+  languageRef.current = language;
+
   // Load preferences on mount
   useEffect(() => {
     const prefs = loadPreferences();
@@ -65,19 +72,25 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
-    savePreferences({ theme: newTheme, language });
-  }, [language]);
+    savePreferences({ theme: newTheme, language: languageRef.current });
+  }, []);
 
   const setLanguage = useCallback((newLanguage: SupportedLocale) => {
     setLanguageState(newLanguage);
     setLocale(newLanguage);
+    clearTimeSlotCache();
     setT(getStrings());
     document.documentElement.setAttribute("lang", newLanguage === "zh" ? "zh-CN" : "en");
-    savePreferences({ theme, language: newLanguage });
-  }, [theme]);
+    savePreferences({ theme: themeRef.current, language: newLanguage });
+  }, []);
+
+  const value = useMemo(
+    () => ({ theme, language, t, setTheme, setLanguage }),
+    [theme, language, t, setTheme, setLanguage],
+  );
 
   return (
-    <PreferencesContext.Provider value={{ theme, language, t, setTheme, setLanguage }}>
+    <PreferencesContext.Provider value={value}>
       {children}
     </PreferencesContext.Provider>
   );

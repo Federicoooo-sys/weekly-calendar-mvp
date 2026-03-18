@@ -23,11 +23,16 @@ export default function WeekView() {
 
   const [modalState, setModalState] = useState<ModalState>(null);
 
-  // Group events by day — computed once, shared by both layouts
+  // Group events by day in a single pass — O(n) instead of O(n*7)
   const eventsByDay = useMemo(() => {
     const grouped: Record<string, CalendarEvent[]> = {};
     for (const day of weekDays) {
-      grouped[day.dayKey] = week.events.filter((e) => e.dayKey === day.dayKey);
+      grouped[day.dayKey] = [];
+    }
+    for (const event of week.events) {
+      if (grouped[event.dayKey]) {
+        grouped[event.dayKey].push(event);
+      }
     }
     return grouped;
   }, [week.events, weekDays]);

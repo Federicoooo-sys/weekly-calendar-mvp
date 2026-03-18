@@ -242,8 +242,8 @@ function AllDayRow({
 
   return (
     <div
-      className="flex"
-      style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-secondary)" }}
+      className="flex overflow-y-auto"
+      style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-bg-secondary)", maxHeight: 120 }}
     >
       {/* Gutter label */}
       <div

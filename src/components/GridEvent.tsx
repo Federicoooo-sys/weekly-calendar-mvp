@@ -1,18 +1,10 @@
-import { getStrings, type LocaleStrings } from "@/constants/strings";
-import { categoryConfig } from "@/constants/categories";
-import { formatTimeRange } from "@/lib/dates";
-import type { CalendarEvent, EventCategory } from "@/types";
+import { getStrings } from "@/constants/strings";
+import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
+import { formatTimeRange, parseTime } from "@/lib/dates";
+import type { CalendarEvent } from "@/types";
 
 /** Height in px of each 15-minute slot */
 const SLOT_HEIGHT = 16;
-
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
-  work: "categoryWork",
-  personal: "categoryPersonal",
-  health: "categoryHealth",
-  errand: "categoryErrand",
-  other: "categoryOther",
-};
 
 interface GridEventProps {
   event: CalendarEvent;
@@ -33,16 +25,21 @@ interface GridEventProps {
 function getEventPosition(event: CalendarEvent, startHour: number) {
   if (!event.startTime) return null;
 
-  const [sh, sm] = event.startTime.split(":").map(Number);
+  const startParsed = parseTime(event.startTime);
+  if (!startParsed) return null;
+
+  const [sh, sm] = startParsed;
   const startMinutes = (sh - startHour) * 60 + sm;
   const top = (startMinutes / 15) * SLOT_HEIGHT;
 
   let height = SLOT_HEIGHT * 2; // default: 30 min
   if (event.endTime) {
-    const [eh, em] = event.endTime.split(":").map(Number);
-    const endMinutes = (eh - startHour) * 60 + em;
-    const diff = endMinutes - (sh - startHour) * 60 - sm;
-    height = Math.max((diff / 15) * SLOT_HEIGHT, SLOT_HEIGHT);
+    const endParsed = parseTime(event.endTime);
+    if (endParsed) {
+      const endMinutes = (endParsed[0] - startHour) * 60 + endParsed[1];
+      const diff = endMinutes - startMinutes;
+      height = Math.max((diff / 15) * SLOT_HEIGHT, SLOT_HEIGHT);
+    }
   }
 
   return { top, height };
@@ -174,14 +171,15 @@ export function layoutEvents(events: CalendarEvent[], startHour: number): Layout
 }
 
 function getStartMinutes(event: CalendarEvent, startHour: number): number {
-  const [h, m] = event.startTime!.split(":").map(Number);
-  return (h - startHour) * 60 + m;
+  const parsed = parseTime(event.startTime!);
+  if (!parsed) return 0;
+  return (parsed[0] - startHour) * 60 + parsed[1];
 }
 
 function getEndMinutes(event: CalendarEvent, startHour: number): number {
   if (event.endTime) {
-    const [h, m] = event.endTime.split(":").map(Number);
-    return (h - startHour) * 60 + m;
+    const parsed = parseTime(event.endTime);
+    if (parsed) return (parsed[0] - startHour) * 60 + parsed[1];
   }
   // Default 30 min duration for events without end time
   return getStartMinutes(event, startHour) + 30;

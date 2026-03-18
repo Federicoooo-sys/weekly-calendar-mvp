@@ -1,18 +1,10 @@
 "use client";
 
-import { getStrings, type LocaleStrings } from "@/constants/strings";
-import { categoryConfig } from "@/constants/categories";
+import { getStrings } from "@/constants/strings";
+import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { formatWeekRange, formatTimeRange } from "@/lib/dates";
 import { getPastWeekDays, type WeekSummary } from "@/lib/history";
-import type { Week, CalendarEvent, EventCategory } from "@/types";
-
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
-  work: "categoryWork",
-  personal: "categoryPersonal",
-  health: "categoryHealth",
-  errand: "categoryErrand",
-  other: "categoryOther",
-};
+import type { Week, CalendarEvent } from "@/types";
 
 interface PastWeekDetailProps {
   week: Week;

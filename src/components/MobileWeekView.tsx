@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getStrings, type LocaleStrings } from "@/constants/strings";
-import { categoryConfig } from "@/constants/categories";
+import { getStrings } from "@/constants/strings";
+import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { formatTimeRange, formatTime } from "@/lib/dates";
-import type { DayInfo, CalendarEvent, DayOfWeek, EventCategory } from "@/types";
+import type { DayInfo, CalendarEvent, DayOfWeek } from "@/types";
 
 interface MobileWeekViewProps {
   days: DayInfo[];
@@ -193,14 +193,6 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
   );
 }
 
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
-  work: "categoryWork",
-  personal: "categoryPersonal",
-  health: "categoryHealth",
-  errand: "categoryErrand",
-  other: "categoryOther",
-};
-
 function MobileEventCard({ event, onClick, onStatusToggle }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void; onStatusToggle: (event: CalendarEvent) => void }) {
   const strings = getStrings();
   const isCompleted = event.status === "completed";
@@ -245,10 +237,10 @@ function MobileEventCard({ event, onClick, onStatusToggle }: { event: CalendarEv
       <div className="flex-1 min-w-0">
         {/* Title */}
         <span
-          className={`text-sm leading-snug block ${isCompleted ? "line-through" : ""}`}
+          className="text-sm leading-snug block"
           style={{
             color: isDimmed ? "var(--color-text-muted)" : "var(--color-text-primary)",
-            textDecoration: isSkipped ? "line-through" : isCompleted ? "line-through" : "none",
+            textDecoration: isDimmed ? "line-through" : "none",
           }}
         >
           {event.title}
