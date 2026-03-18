@@ -7,8 +7,8 @@ type Theme = "light" | "dark" | "blue";
 
 const THEMES: { value: Theme; labelKey: "settingsThemeLight" | "settingsThemeDark" | "settingsThemeBlue"; preview: string }[] = [
   { value: "light", labelKey: "settingsThemeLight", preview: "#ffffff" },
-  { value: "dark", labelKey: "settingsThemeDark", preview: "#111827" },
-  { value: "blue", labelKey: "settingsThemeBlue", preview: "#eff6ff" },
+  { value: "dark", labelKey: "settingsThemeDark", preview: "#000000" },
+  { value: "blue", labelKey: "settingsThemeBlue", preview: "#0d9488" },
 ];
 
 const LANGUAGES: { value: SupportedLocale; labelKey: "settingsLanguageEn" | "settingsLanguageZh" }[] = [

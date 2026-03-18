@@ -104,7 +104,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
   return (
     // Backdrop — handles dismiss on click outside the modal
     <div
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+      className="fixed inset-0 z-[60] flex items-end md:items-center justify-center"
       role="dialog"
       aria-modal="true"
       aria-label={isEditing ? strings.editEvent : strings.addEvent}

@@ -1,68 +1,68 @@
 @import "tailwindcss";
 
-/* ─── Light theme (default) ─── */
+/* ─── Light theme (default) — Apple HIG-inspired ─── */
 :root,
 [data-theme="light"] {
   --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f9fafb;
-  --color-bg-tertiary: #f3f4f6;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-border: #e5e7eb;
-  --color-accent: #3b82f6;
-  --color-accent-hover: #2563eb;
-  --color-nav-active: #3b82f6;
-  --color-nav-inactive: #6b7280;
+  --color-bg-secondary: #f2f2f7;
+  --color-bg-tertiary: #e5e5ea;
+  --color-text-primary: #000000;
+  --color-text-secondary: #636366;
+  --color-text-muted: #aeaeb2;
+  --color-border: #d1d1d6;
+  --color-accent: #007aff;
+  --color-accent-hover: #0056b3;
+  --color-nav-active: #007aff;
+  --color-nav-inactive: #8e8e93;
 
-  /* Category colors */
-  --color-cat-work: #3b82f6;
-  --color-cat-personal: #8b5cf6;
-  --color-cat-health: #10b981;
-  --color-cat-errand: #f59e0b;
-  --color-cat-other: #6b7280;
+  /* Category colors — Apple system palette */
+  --color-cat-work: #007aff;
+  --color-cat-personal: #af52de;
+  --color-cat-health: #34c759;
+  --color-cat-errand: #ff9500;
+  --color-cat-other: #8e8e93;
 }
 
-/* ─── Dark theme ─── */
+/* ─── Dark theme — neutral grays, no blue hue ─── */
 [data-theme="dark"] {
-  --color-bg-primary: #111827;
-  --color-bg-secondary: #1f2937;
-  --color-bg-tertiary: #374151;
-  --color-text-primary: #f9fafb;
-  --color-text-secondary: #9ca3af;
-  --color-text-muted: #6b7280;
-  --color-border: #374151;
-  --color-accent: #60a5fa;
-  --color-accent-hover: #3b82f6;
-  --color-nav-active: #60a5fa;
-  --color-nav-inactive: #9ca3af;
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #1c1c1e;
+  --color-bg-tertiary: #2c2c2e;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #98989d;
+  --color-text-muted: #636366;
+  --color-border: #38383a;
+  --color-accent: #0a84ff;
+  --color-accent-hover: #007aff;
+  --color-nav-active: #0a84ff;
+  --color-nav-inactive: #98989d;
 
-  --color-cat-work: #60a5fa;
-  --color-cat-personal: #a78bfa;
-  --color-cat-health: #34d399;
-  --color-cat-errand: #fbbf24;
-  --color-cat-other: #9ca3af;
+  --color-cat-work: #0a84ff;
+  --color-cat-personal: #bf5af2;
+  --color-cat-health: #30d158;
+  --color-cat-errand: #ff9f0a;
+  --color-cat-other: #98989d;
 }
 
-/* ─── Blue theme ─── */
+/* ─── Blue theme — teal-tinted, distinct from light ─── */
 [data-theme="blue"] {
-  --color-bg-primary: #eff6ff;
-  --color-bg-secondary: #dbeafe;
-  --color-bg-tertiary: #bfdbfe;
-  --color-text-primary: #1e3a5f;
-  --color-text-secondary: #3b6da1;
-  --color-text-muted: #7da5cc;
-  --color-border: #93c5fd;
-  --color-accent: #2563eb;
-  --color-accent-hover: #1d4ed8;
-  --color-nav-active: #1d4ed8;
-  --color-nav-inactive: #3b6da1;
+  --color-bg-primary: #f0f7f7;
+  --color-bg-secondary: #e2efef;
+  --color-bg-tertiary: #d0e3e3;
+  --color-text-primary: #0f2b2b;
+  --color-text-secondary: #3d6363;
+  --color-text-muted: #7a9e9e;
+  --color-border: #b8d4d4;
+  --color-accent: #0d9488;
+  --color-accent-hover: #0a7a70;
+  --color-nav-active: #0d9488;
+  --color-nav-inactive: #6b9e9e;
 
-  --color-cat-work: #2563eb;
-  --color-cat-personal: #7c3aed;
-  --color-cat-health: #059669;
-  --color-cat-errand: #d97706;
-  --color-cat-other: #3b6da1;
+  --color-cat-work: #0d9488;
+  --color-cat-personal: #8b5cf6;
+  --color-cat-health: #22c55e;
+  --color-cat-errand: #f59e0b;
+  --color-cat-other: #7a9e9e;
 }
 
 @theme inline {

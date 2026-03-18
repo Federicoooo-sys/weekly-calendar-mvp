@@ -92,18 +92,6 @@ export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick, 
             >
               {day.dateLabel}
             </span>
-            {/* Add event button — appears on hover */}
-            <button
-              onClick={() => onAddEvent(day.dayKey)}
-              className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-              style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
-              aria-label={`${strings.addEvent} — ${day.dayLabel}`}
-            >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="6" y1="2" x2="6" y2="10" />
-                <line x1="2" y1="6" x2="10" y2="6" />
-              </svg>
-            </button>
           </div>
         ))}
       </div>
@@ -149,6 +137,7 @@ export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick, 
             return (
               <div
                 key={day.dayKey}
+                onClick={() => onAddEvent(day.dayKey)}
                 className="flex-1 min-w-0 relative cursor-pointer"
                 style={{
                   borderRight: "1px solid var(--color-border)",
@@ -272,7 +261,7 @@ function AllDayRow({
               return (
                 <div
                   key={event.id}
-                  onClick={() => onEventClick(event)}
+                  onClick={(e) => { e.stopPropagation(); onEventClick(event); }}
                   className="flex items-center gap-1 rounded px-1 py-0.5 cursor-pointer hover:opacity-100 transition-opacity"
                   style={{
                     background: categoryConfig[event.category].colorVar,

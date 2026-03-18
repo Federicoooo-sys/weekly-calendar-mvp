@@ -85,6 +85,8 @@ export default function WeekView() {
     setModalState(null);
   }
 
+  const todayKey = weekDays.find((d) => d.isToday)?.dayKey ?? weekDays[0].dayKey;
+
   return (
     <div>
       {/* Week header — title and date range on one line */}
@@ -118,6 +120,19 @@ export default function WeekView() {
       <div className="md:hidden">
         <MobileWeekView days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} />
       </div>
+
+      {/* Floating add button — bottom-right, above bottom nav on mobile */}
+      <button
+        onClick={() => handleAddEvent(todayKey)}
+        className="fixed right-5 bottom-20 md:bottom-6 z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-transform active:scale-90 hover:scale-105"
+        style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
+        aria-label={t.addEvent}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
 
       {/* Add/Edit event modal */}
       {modalState && (

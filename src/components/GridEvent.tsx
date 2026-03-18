@@ -62,7 +62,7 @@ export default function GridEvent({ event, startHour, columnCount, columnIndex, 
 
   return (
     <div
-      onClick={() => onClick?.(event)}
+      onClick={(e) => { e.stopPropagation(); onClick?.(event); }}
       className="absolute rounded-md px-1.5 py-0.5 overflow-hidden cursor-pointer transition-opacity hover:opacity-100"
       style={{
         top: `${pos.top}px`,

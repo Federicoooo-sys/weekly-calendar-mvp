@@ -143,18 +143,6 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
           )}
         </div>
 
-        {/* Add button — 36px for comfortable thumb target */}
-        <button
-          onClick={() => onAddEvent(selectedDay)}
-          className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
-          style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
-          aria-label={strings.addEvent}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="8" y1="3" x2="8" y2="13" />
-            <line x1="3" y1="8" x2="13" y2="8" />
-          </svg>
-        </button>
       </div>
 
       {/* ─── Day timeline ─── */}
