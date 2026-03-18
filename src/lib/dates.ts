@@ -1,9 +1,11 @@
-import type { DayOfWeek, DayInfo, TimeSlot } from "@/types";
-import { strings } from "@/constants/strings";
+import type { DayOfWeek, DayInfo, TimeSlot, CalendarEvent } from "@/types";
+import { getStrings, type LocaleStrings } from "@/constants/strings";
+
+export type EventTimingState = "upcoming" | "active" | "past";
 
 const DAY_ORDER: DayOfWeek[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-const DAY_LABEL_KEYS: Record<DayOfWeek, keyof typeof strings> = {
+const DAY_LABEL_KEYS: Record<DayOfWeek, keyof LocaleStrings> = {
   mon: "dayMonShort",
   tue: "dayTueShort",
   wed: "dayWedShort",
@@ -13,7 +15,7 @@ const DAY_LABEL_KEYS: Record<DayOfWeek, keyof typeof strings> = {
   sun: "daySunShort",
 };
 
-const DAY_LETTER_KEYS: Record<DayOfWeek, keyof typeof strings> = {
+const DAY_LETTER_KEYS: Record<DayOfWeek, keyof LocaleStrings> = {
   mon: "dayMonLetter",
   tue: "dayTueLetter",
   wed: "dayWedLetter",
@@ -69,6 +71,7 @@ export function getCurrentWeekDays(startDay: DayOfWeek = "mon"): DayInfo[] {
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
+  const s = getStrings();
   return days.map((dayKey) => {
     const date = getDateForDay(dayKey, weekStart);
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -76,8 +79,8 @@ export function getCurrentWeekDays(startDay: DayOfWeek = "mon"): DayInfo[] {
     return {
       dayKey,
       date,
-      dayLabel: strings[DAY_LABEL_KEYS[dayKey]],
-      dayLetter: strings[DAY_LETTER_KEYS[dayKey]],
+      dayLabel: s[DAY_LABEL_KEYS[dayKey]],
+      dayLetter: s[DAY_LETTER_KEYS[dayKey]],
       dayNumber: date.getDate(),
       dateLabel: formatShortDate(date),
       isToday: dateStr === todayStr,
@@ -109,6 +112,56 @@ export function isPast(dayKey: DayOfWeek, weekStart: string): boolean {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   return dayDate < now;
+}
+
+// ─── Event timing ───
+
+/**
+ * Derives whether an event is upcoming, currently active, or in the past.
+ * Based on the event's day + time compared to right now. Never stored — always computed.
+ *
+ * Rules:
+ * - Untimed events: past if the day is past, otherwise upcoming (no "active" state)
+ * - Timed events: past if endTime (or startTime + 30min default) has passed,
+ *   active if we're between start and end, upcoming otherwise
+ * - Events on future days are always upcoming regardless of time
+ */
+export function getEventTimingState(event: CalendarEvent, weekStart: string): EventTimingState {
+  const eventDate = getDateForDay(event.dayKey, weekStart);
+  const now = new Date();
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  const eventDay = new Date(eventDate);
+  eventDay.setHours(0, 0, 0, 0);
+
+  // Future day → always upcoming
+  if (eventDay > today) return "upcoming";
+
+  // Past day → always past
+  if (eventDay < today) return "past";
+
+  // Today — check time
+  if (!event.startTime) {
+    // Untimed events on today are upcoming (user decides when they're done)
+    return "upcoming";
+  }
+
+  const [sh, sm] = event.startTime.split(":").map(Number);
+  const startMinutes = sh * 60 + sm;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+  let endMinutes: number;
+  if (event.endTime) {
+    const [eh, em] = event.endTime.split(":").map(Number);
+    endMinutes = eh * 60 + em;
+  } else {
+    endMinutes = startMinutes + 30; // default 30min duration
+  }
+
+  if (nowMinutes < startMinutes) return "upcoming";
+  if (nowMinutes >= endMinutes) return "past";
+  return "active";
 }
 
 // ─── Formatting ───

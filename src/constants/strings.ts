@@ -8,7 +8,7 @@ const locales: Record<SupportedLocale, LocaleStrings> = { en, zh };
 
 /**
  * Current active locale. Defaults to English.
- * Will be driven by UserPreferences once settings page exists.
+ * Driven by PreferencesProvider at runtime.
  */
 let activeLocale: SupportedLocale = "en";
 
@@ -22,7 +22,7 @@ export function getLocale(): SupportedLocale {
 
 /**
  * Returns the string dictionary for the active locale.
- * All components import this — it's the single access point for UI text.
+ * Call inside component render or function bodies — not at module level.
  */
 export function getStrings(): LocaleStrings {
   return locales[activeLocale];
@@ -30,8 +30,8 @@ export function getStrings(): LocaleStrings {
 
 /**
  * Static reference for server components and module-level usage.
- * Points to English. Client components that need reactive locale
- * switching should use getStrings() instead.
+ * Always returns English. Client components should use `usePreferences().t`
+ * for reactive locale switching, or `getStrings()` inside function bodies.
  */
 export const strings = en;
 

@@ -81,6 +81,8 @@ const zh: LocaleStrings = {
   fieldCategory: "分类",
   fieldNote: "备注",
   fieldNotePlaceholder: "可选备注...",
+  fieldStatus: "状态",
+  reschedule: "改期",
   validationEndTimeAfterStart: "结束时间必须晚于开始时间",
   validationTitleRequired: "请输入标题",
 
@@ -91,11 +93,27 @@ const zh: LocaleStrings = {
 
   // History page
   historyDescription: "完成一周后，它将作为只读摘要显示在此处，供您回顾。",
+  historyNoWeeks: "暂无过往周记录。完成第一周后将显示在此。",
+  historyBack: "返回",
+  historyReadOnly: "只读模式 — 过往周不可编辑",
+  historySummaryTotal: "{count} 个事件",
+  historySummaryCompleted: "{count} 已完成",
+  historySummarySkipped: "{count} 已跳过",
+  historySummaryUnresolved: "{count} 未处理",
+  historySummaryRate: "{rate}% 执行率",
+  historyNoEventsDay: "无事件",
+  historyNoEventsWeek: "本周无事件",
 
   // Settings page
   settingsDescription: "主题、语言和偏好设置将在核心计划功能完成后在此提供。",
   settingsTheme: "主题",
   settingsLanguage: "语言",
+  settingsThemeLight: "浅色",
+  settingsThemeDark: "深色",
+  settingsThemeBlue: "蓝色",
+  settingsLanguageEn: "English",
+  settingsLanguageZh: "简体中文",
+  settingsAppearance: "外观",
 };
 
 export default zh;

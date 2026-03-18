@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { strings } from "@/constants/strings";
+import { getStrings, type LocaleStrings } from "@/constants/strings";
 import { categoryConfig } from "@/constants/categories";
 import { getTimeSlots } from "@/lib/dates";
-import type { CalendarEvent, DayInfo, DayOfWeek, EventCategory } from "@/types";
+import type { CalendarEvent, DayInfo, DayOfWeek, EventCategory, EventStatus } from "@/types";
 
 const CATEGORIES: EventCategory[] = ["work", "personal", "health", "errand", "other"];
 
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof typeof strings> = {
+const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
   work: "categoryWork",
   personal: "categoryPersonal",
   health: "categoryHealth",
@@ -29,6 +29,7 @@ export interface EventFormData {
   endTime: string;
   category: EventCategory;
   note: string;
+  status: EventStatus;
 }
 
 interface EventFormModalProps {
@@ -47,6 +48,7 @@ interface EventFormModalProps {
 }
 
 export default function EventFormModal({ days, initialDayKey, event, onSave, onDelete, onClose }: EventFormModalProps) {
+  const strings = getStrings();
   const isEditing = !!event;
 
   const [title, setTitle] = useState(event?.title ?? "");
@@ -55,6 +57,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
   const [endTime, setEndTime] = useState(event?.endTime ?? "");
   const [category, setCategory] = useState<EventCategory>(event?.category ?? "other");
   const [note, setNote] = useState(event?.note ?? "");
+  const [status, setStatus] = useState<EventStatus>(event?.status ?? "planned");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [titleTouched, setTitleTouched] = useState(false);
 
@@ -82,7 +85,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
 
   function handleSave() {
     if (!canSave) return;
-    onSave({ title, dayKey, startTime, endTime, category, note });
+    onSave({ title, dayKey, startTime, endTime, category, note, status });
   }
 
   function handleDelete() {
@@ -315,6 +318,44 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               })}
             </div>
           </div>
+
+          {/* Status — edit mode only */}
+          {isEditing && (
+            <div>
+              <label
+                className="block text-xs font-medium mb-1.5"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                {strings.fieldStatus}
+              </label>
+              <div className="flex gap-2">
+                {(["planned", "completed", "skipped"] as EventStatus[]).map((s) => {
+                  const isSelected = s === status;
+                  const labelKey = s === "planned" ? "statusPlanned" : s === "completed" ? "statusCompleted" : "statusSkipped";
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setStatus(s)}
+                      className="px-3.5 py-2 rounded-full text-xs font-medium cursor-pointer transition-colors"
+                      style={{
+                        background: isSelected
+                          ? s === "completed" ? "var(--color-cat-health)" : s === "skipped" ? "var(--color-text-muted)" : "var(--color-accent)"
+                          : "var(--color-bg-secondary)",
+                        color: isSelected
+                          ? "var(--color-bg-primary)"
+                          : "var(--color-text-secondary)",
+                        border: isSelected
+                          ? "1px solid transparent"
+                          : "1px solid var(--color-border)",
+                      }}
+                    >
+                      {strings[labelKey]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Note */}
           <div>

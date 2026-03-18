@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { strings } from "@/constants/strings";
+import { getStrings, type LocaleStrings } from "@/constants/strings";
 import { formatTime } from "@/lib/dates";
 import { categoryConfig } from "@/constants/categories";
 import GridEvent, { SLOT_HEIGHT, layoutEvents } from "./GridEvent";
@@ -21,6 +21,7 @@ interface WeekGridProps {
   eventsByDay: Record<string, CalendarEvent[]>;
   onAddEvent: (dayKey: DayOfWeek) => void;
   onEventClick: (event: CalendarEvent) => void;
+  onStatusToggle: (event: CalendarEvent) => void;
 }
 
 /** Returns the pixel offset of the current time from START_HOUR, or null if outside range. */
@@ -33,7 +34,8 @@ function getCurrentTimeOffset(): number | null {
   return ((totalMinutes - startMinutes) / 15) * SLOT_HEIGHT;
 }
 
-export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick }: WeekGridProps) {
+export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick, onStatusToggle }: WeekGridProps) {
+  const strings = getStrings();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [timeOffset, setTimeOffset] = useState<number | null>(getCurrentTimeOffset);
 
@@ -107,7 +109,7 @@ export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick }
       </div>
 
       {/* ─── All-day / untimed events row ─── */}
-      <AllDayRow days={days} eventsByDay={eventsByDay} onEventClick={onEventClick} />
+      <AllDayRow days={days} eventsByDay={eventsByDay} onEventClick={onEventClick} onStatusToggle={onStatusToggle} />
 
       {/* ─── Scrollable time grid ─── */}
       <div
@@ -188,6 +190,7 @@ export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick }
                     columnCount={columnCount}
                     columnIndex={columnIndex}
                     onClick={onEventClick}
+                    onStatusToggle={onStatusToggle}
                   />
                 ))}
 
@@ -223,11 +226,14 @@ function AllDayRow({
   days,
   eventsByDay,
   onEventClick,
+  onStatusToggle,
 }: {
   days: DayInfo[];
   eventsByDay: Record<string, CalendarEvent[]>;
   onEventClick: (event: CalendarEvent) => void;
+  onStatusToggle: (event: CalendarEvent) => void;
 }) {
+  const strings = getStrings();
   const hasAnyUntimed = days.some((day) =>
     (eventsByDay[day.dayKey] || []).some((e) => !e.startTime)
   );
@@ -261,24 +267,27 @@ function AllDayRow({
               background: day.isToday ? "var(--color-bg-tertiary)" : "transparent",
             }}
           >
-            {untimedEvents.map((event) => (
-              <div
-                key={event.id}
-                onClick={() => onEventClick(event)}
-                className="flex items-center gap-1 rounded px-1 py-0.5 cursor-pointer hover:opacity-100 transition-opacity"
-                style={{
-                  background: categoryConfig[event.category].colorVar,
-                  opacity: event.status === "completed" ? 0.5 : 0.85,
-                }}
-              >
-                <span
-                  className={`text-[10px] font-medium truncate ${event.status === "completed" ? "line-through" : ""}`}
-                  style={{ color: "var(--color-bg-primary)" }}
+            {untimedEvents.map((event) => {
+              const isDone = event.status === "completed" || event.status === "skipped";
+              return (
+                <div
+                  key={event.id}
+                  onClick={() => onEventClick(event)}
+                  className="flex items-center gap-1 rounded px-1 py-0.5 cursor-pointer hover:opacity-100 transition-opacity"
+                  style={{
+                    background: categoryConfig[event.category].colorVar,
+                    opacity: isDone ? 0.5 : 0.85,
+                  }}
                 >
-                  {event.title}
-                </span>
-              </div>
-            ))}
+                  <span
+                    className={`text-[10px] font-medium truncate ${isDone ? "line-through" : ""}`}
+                    style={{ color: "var(--color-bg-primary)" }}
+                  >
+                    {event.title}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         );
       })}

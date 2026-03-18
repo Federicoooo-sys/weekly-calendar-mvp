@@ -1,4 +1,4 @@
-import { strings } from "@/constants/strings";
+import { getStrings } from "@/constants/strings";
 import { categoryConfig } from "@/constants/categories";
 import type { CalendarEvent } from "@/types";
 
@@ -10,6 +10,7 @@ interface DayColumnProps {
 }
 
 export default function DayColumn({ dayLabel, dateLabel, isToday, events }: DayColumnProps) {
+  const strings = getStrings();
   return (
     <div
       className="rounded-lg p-3 min-h-[100px] md:min-h-[140px] transition-colors"

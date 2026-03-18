@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { strings } from "@/constants/strings";
+import { getStrings, type LocaleStrings } from "@/constants/strings";
 import { categoryConfig } from "@/constants/categories";
 import { formatTimeRange, formatTime } from "@/lib/dates";
 import type { DayInfo, CalendarEvent, DayOfWeek, EventCategory } from "@/types";
@@ -11,6 +11,7 @@ interface MobileWeekViewProps {
   eventsByDay: Record<string, CalendarEvent[]>;
   onAddEvent: (dayKey: DayOfWeek) => void;
   onEventClick: (event: CalendarEvent) => void;
+  onStatusToggle: (event: CalendarEvent) => void;
 }
 
 /** Returns a formatted current time string, e.g. "9:42 AM". */
@@ -21,7 +22,8 @@ function getCurrentTimeLabel(): string {
   return formatTime(`${hh}:${mm}`);
 }
 
-export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventClick }: MobileWeekViewProps) {
+export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventClick, onStatusToggle }: MobileWeekViewProps) {
+  const strings = getStrings();
   // Default to today, or Monday if today isn't in the current week
   const todayKey = days.find((d) => d.isToday)?.dayKey ?? days[0].dayKey;
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>(todayKey);
@@ -173,7 +175,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
         <div className="space-y-2">
           {/* Timed events */}
           {timedEvents.map((event) => (
-            <MobileEventCard key={event.id} event={event} onClick={onEventClick} />
+            <MobileEventCard key={event.id} event={event} onClick={onEventClick} onStatusToggle={onStatusToggle} />
           ))}
 
           {/* Untimed events — separated only when both sections exist */}
@@ -183,7 +185,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
             </div>
           )}
           {untimedEvents.map((event) => (
-            <MobileEventCard key={event.id} event={event} onClick={onEventClick} />
+            <MobileEventCard key={event.id} event={event} onClick={onEventClick} onStatusToggle={onStatusToggle} />
           ))}
         </div>
       )}
@@ -191,7 +193,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
   );
 }
 
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof typeof strings> = {
+const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
   work: "categoryWork",
   personal: "categoryPersonal",
   health: "categoryHealth",
@@ -199,8 +201,11 @@ const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof typeof strings> = {
   other: "categoryOther",
 };
 
-function MobileEventCard({ event, onClick }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void }) {
+function MobileEventCard({ event, onClick, onStatusToggle }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void; onStatusToggle: (event: CalendarEvent) => void }) {
+  const strings = getStrings();
   const isCompleted = event.status === "completed";
+  const isSkipped = event.status === "skipped";
+  const isDimmed = isCompleted || isSkipped;
 
   return (
     <div
@@ -209,21 +214,41 @@ function MobileEventCard({ event, onClick }: { event: CalendarEvent; onClick: (e
       style={{
         background: "var(--color-bg-secondary)",
         border: "1px solid var(--color-border)",
-        opacity: isCompleted ? 0.65 : 1,
+        opacity: isDimmed ? 0.65 : 1,
       }}
     >
-      {/* Category color bar */}
-      <div
-        className="w-0.5 self-stretch rounded-full shrink-0 mt-0.5"
-        style={{ background: categoryConfig[event.category].colorVar, minHeight: "24px" }}
-      />
+      {/* Status toggle circle */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onStatusToggle(event); }}
+        className="w-5 h-5 rounded-full shrink-0 mt-0.5 flex items-center justify-center cursor-pointer transition-colors"
+        style={{
+          border: isCompleted
+            ? "none"
+            : `2px solid ${isSkipped ? "var(--color-text-muted)" : categoryConfig[event.category].colorVar}`,
+          background: isCompleted ? "var(--color-cat-health)" : "transparent",
+        }}
+        aria-label={isCompleted ? strings.statusPlanned : strings.statusCompleted}
+      >
+        {isCompleted && (
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--color-bg-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="2.5,6 5,8.5 9.5,3.5" />
+          </svg>
+        )}
+        {isSkipped && (
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" strokeLinecap="round">
+            <line x1="2.5" y1="2.5" x2="7.5" y2="7.5" />
+            <line x1="7.5" y1="2.5" x2="2.5" y2="7.5" />
+          </svg>
+        )}
+      </button>
 
       <div className="flex-1 min-w-0">
         {/* Title */}
         <span
           className={`text-sm leading-snug block ${isCompleted ? "line-through" : ""}`}
           style={{
-            color: isCompleted ? "var(--color-text-muted)" : "var(--color-text-primary)",
+            color: isDimmed ? "var(--color-text-muted)" : "var(--color-text-primary)",
+            textDecoration: isSkipped ? "line-through" : isCompleted ? "line-through" : "none",
           }}
         >
           {event.title}

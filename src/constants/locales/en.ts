@@ -79,6 +79,8 @@ const en = {
   fieldCategory: "Category",
   fieldNote: "Note",
   fieldNotePlaceholder: "Optional details...",
+  fieldStatus: "Status",
+  reschedule: "Reschedule",
   validationEndTimeAfterStart: "End time must be after start time",
   validationTitleRequired: "Title is required",
 
@@ -89,11 +91,27 @@ const en = {
 
   // History page
   historyDescription: "Once you complete a week, it will appear here as a read-only summary you can look back on.",
+  historyNoWeeks: "No past weeks yet. Finish your first week and it will appear here.",
+  historyBack: "Back",
+  historyReadOnly: "Read-only — past weeks cannot be edited",
+  historySummaryTotal: "{count} events",
+  historySummaryCompleted: "{count} completed",
+  historySummarySkipped: "{count} skipped",
+  historySummaryUnresolved: "{count} unresolved",
+  historySummaryRate: "{rate}% follow-through",
+  historyNoEventsDay: "No events",
+  historyNoEventsWeek: "No events this week",
 
   // Settings page
   settingsDescription: "Theme, language, and preferences will live here once the core planner is ready.",
   settingsTheme: "Theme",
   settingsLanguage: "Language",
+  settingsThemeLight: "Light",
+  settingsThemeDark: "Dark",
+  settingsThemeBlue: "Blue",
+  settingsLanguageEn: "English",
+  settingsLanguageZh: "简体中文",
+  settingsAppearance: "Appearance",
 } as const;
 
 /** Keys are fixed, values are any string — so other locales can provide translations. */

@@ -2,23 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { strings } from "@/constants/strings";
+import { usePreferences } from "@/hooks/usePreferences";
 import { formatShortDate } from "@/lib/dates";
-
-interface NavItem {
-  href: string;
-  label: string;
-}
-
-const navItems: NavItem[] = [
-  { href: "/", label: strings.navWeek },
-  { href: "/history", label: strings.navHistory },
-  { href: "/settings", label: strings.navSettings },
-];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = usePreferences();
   const todayLabel = formatShortDate(new Date());
+
+  const navItems = [
+    { href: "/", label: t.navWeek },
+    { href: "/history", label: t.navHistory },
+    { href: "/settings", label: t.navSettings },
+  ];
 
   return (
     <aside
@@ -29,7 +25,7 @@ export default function Sidebar() {
         {/* App name + today's date */}
         <div className="px-5 pt-5 pb-4">
           <h1 className="text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>
-            {strings.appName}
+            {t.appName}
           </h1>
           <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
             {todayLabel}

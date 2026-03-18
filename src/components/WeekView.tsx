@@ -6,7 +6,7 @@ import { useWeekStorage } from "@/hooks/useWeekStorage";
 import WeekGrid from "./WeekGrid";
 import MobileWeekView from "./MobileWeekView";
 import EventFormModal, { type EventFormData } from "./EventFormModal";
-import { strings } from "@/constants/strings";
+import { usePreferences } from "@/hooks/usePreferences";
 import type { CalendarEvent, DayOfWeek } from "@/types";
 
 /** Modal can be in add mode (just a dayKey) or edit mode (an existing event). */
@@ -16,6 +16,7 @@ type ModalState =
   | null;
 
 export default function WeekView() {
+  const { t } = usePreferences();
   const { week, addEvent, updateEvent, deleteEvent } = useWeekStorage();
   const weekDays = getCurrentWeekDays("mon");
   const weekRange = formatWeekRange(getCurrentWeekStart());
@@ -50,6 +51,7 @@ export default function WeekView() {
         endTime: data.endTime || undefined,
         category: data.category,
         note: data.note?.trim() || undefined,
+        status: data.status,
       });
     } else {
       addEvent({
@@ -69,6 +71,11 @@ export default function WeekView() {
     setModalState(null);
   }
 
+  function handleStatusToggle(event: CalendarEvent) {
+    const newStatus = event.status === "completed" ? "planned" : "completed";
+    updateEvent(event.id, { status: newStatus });
+  }
+
   function handleCloseModal() {
     setModalState(null);
   }
@@ -81,7 +88,7 @@ export default function WeekView() {
           className="text-lg font-semibold md:text-xl"
           style={{ color: "var(--color-text-primary)" }}
         >
-          {strings.weekPageTitle}
+          {t.weekPageTitle}
         </h2>
         <span
           className="text-sm"
@@ -93,18 +100,18 @@ export default function WeekView() {
           className="text-xs hidden md:inline"
           style={{ color: "var(--color-text-muted)" }}
         >
-          · {totalEvents} {totalEvents === 1 ? strings.eventCount.replace("{count}", "1") : strings.eventCountPlural.replace("{count}", String(totalEvents))}
+          · {totalEvents} {totalEvents === 1 ? t.eventCount.replace("{count}", "1") : t.eventCountPlural.replace("{count}", String(totalEvents))}
         </span>
       </div>
 
       {/* Desktop: time grid calendar */}
       <div className="hidden md:block">
-        <WeekGrid days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} />
+        <WeekGrid days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} />
       </div>
 
       {/* Mobile: week strip + day timeline */}
       <div className="md:hidden">
-        <MobileWeekView days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} />
+        <MobileWeekView days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} />
       </div>
 
       {/* Add/Edit event modal */}

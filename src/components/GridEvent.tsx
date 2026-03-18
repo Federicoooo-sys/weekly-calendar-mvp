@@ -1,4 +1,4 @@
-import { strings } from "@/constants/strings";
+import { getStrings, type LocaleStrings } from "@/constants/strings";
 import { categoryConfig } from "@/constants/categories";
 import { formatTimeRange } from "@/lib/dates";
 import type { CalendarEvent, EventCategory } from "@/types";
@@ -6,7 +6,7 @@ import type { CalendarEvent, EventCategory } from "@/types";
 /** Height in px of each 15-minute slot */
 const SLOT_HEIGHT = 16;
 
-const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof typeof strings> = {
+const CATEGORY_LABEL_KEYS: Record<EventCategory, keyof LocaleStrings> = {
   work: "categoryWork",
   personal: "categoryPersonal",
   health: "categoryHealth",
@@ -23,6 +23,8 @@ interface GridEventProps {
   columnIndex: number;
   /** Called when the event is clicked */
   onClick?: (event: CalendarEvent) => void;
+  /** Called when the status toggle circle is clicked */
+  onStatusToggle?: (event: CalendarEvent) => void;
 }
 
 /**
@@ -46,11 +48,14 @@ function getEventPosition(event: CalendarEvent, startHour: number) {
   return { top, height };
 }
 
-export default function GridEvent({ event, startHour, columnCount, columnIndex, onClick }: GridEventProps) {
+export default function GridEvent({ event, startHour, columnCount, columnIndex, onClick, onStatusToggle }: GridEventProps) {
+  const strings = getStrings();
   const pos = getEventPosition(event, startHour);
   if (!pos) return null;
 
   const isCompleted = event.status === "completed";
+  const isSkipped = event.status === "skipped";
+  const isDimmed = isCompleted || isSkipped;
   const isCompact = pos.height <= SLOT_HEIGHT * 2;
   const isTall = pos.height >= SLOT_HEIGHT * 4;
 
@@ -68,12 +73,12 @@ export default function GridEvent({ event, startHour, columnCount, columnIndex, 
         left: columnCount > 1 ? `${leftPercent}%` : "2px",
         width: columnCount > 1 ? `calc(${widthPercent}% - 3px)` : "calc(100% - 4px)",
         background: categoryConfig[event.category].colorVar,
-        opacity: isCompleted ? 0.5 : 0.85,
+        opacity: isDimmed ? 0.5 : 0.85,
         zIndex: 10 + columnIndex,
       }}
     >
       <span
-        className={`text-[11px] font-medium leading-snug block truncate ${isCompleted ? "line-through" : ""}`}
+        className={`text-[11px] font-medium leading-snug block truncate ${isDimmed ? "line-through" : ""}`}
         style={{ color: "var(--color-bg-primary)" }}
       >
         {event.title}
