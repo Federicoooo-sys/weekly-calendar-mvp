@@ -111,9 +111,19 @@ const zh: LocaleStrings = {
   settingsThemeLight: "浅色",
   settingsThemeDark: "深色",
   settingsThemeBlue: "蓝色",
+  settingsThemeLavender: "薰衣草",
+  settingsThemeMist: "雾蓝",
+  settingsThemeCosmic: "暖橙",
   settingsLanguageEn: "English",
   settingsLanguageZh: "简体中文",
   settingsAppearance: "外观",
+
+  // Circle page (placeholder)
+  navCircle: "圈子",
+  circlePageTitle: "你的圈子",
+  circleEmptyTitle: "私密互助",
+  circleEmptyDescription: "与家人或好友分享每周总结，了解彼此的一周 — 私密、自主。",
+  circleComingSoon: "即将推出",
 };
 
 export default zh;

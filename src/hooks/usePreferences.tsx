@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { setLocale, getStrings, type SupportedLocale, type LocaleStrings } from "@/constants/strings";
 import { clearTimeSlotCache } from "@/lib/dates";
 
-type Theme = "light" | "dark" | "blue";
+type Theme = "light" | "dark" | "blue" | "lavender" | "mist" | "cosmic";
 
 interface PreferencesContextValue {
   theme: Theme;

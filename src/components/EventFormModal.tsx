@@ -110,13 +110,13 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
       aria-label={isEditing ? strings.editEvent : strings.addEvent}
     >
       {/* Dim overlay — click to dismiss */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: "var(--color-overlay)" }} onClick={onClose} />
 
       {/* Modal / Sheet container */}
       <div
         className="relative w-full md:max-w-md md:mx-4 rounded-t-2xl md:rounded-2xl p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:p-6 animate-slideUp md:animate-fadeIn"
         style={{
-          background: "var(--color-bg-primary)",
+          background: "var(--color-surface-elevated)",
           border: "1px solid var(--color-border)",
           maxHeight: "90vh",
           overflowY: "auto",
@@ -173,12 +173,12 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
                 background: "var(--color-bg-secondary)",
                 color: "var(--color-text-primary)",
                 border: titleTouched && !titleValid
-                  ? "1px solid var(--color-cat-errand)"
+                  ? "1px solid var(--color-danger)"
                   : "1px solid var(--color-border)",
               }}
             />
             {titleTouched && !titleValid && (
-              <p className="text-xs mt-1" style={{ color: "var(--color-cat-errand)" }}>
+              <p className="text-xs mt-1" style={{ color: "var(--color-danger)" }}>
                 {strings.validationTitleRequired}
               </p>
             )}
@@ -274,7 +274,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
 
           {/* Time validation error */}
           {!timeValid && (
-            <p className="text-xs" style={{ color: "var(--color-cat-errand)" }}>
+            <p className="text-xs" style={{ color: "var(--color-danger)" }}>
               {strings.validationEndTimeAfterStart}
             </p>
           )}
@@ -334,7 +334,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
                       className="px-3.5 py-2 rounded-full text-xs font-medium cursor-pointer transition-colors"
                       style={{
                         background: isSelected
-                          ? s === "completed" ? "var(--color-cat-health)" : s === "skipped" ? "var(--color-text-muted)" : "var(--color-accent)"
+                          ? s === "completed" ? "var(--color-success)" : s === "skipped" ? "var(--color-disabled)" : "var(--color-accent)"
                           : "var(--color-bg-secondary)",
                         color: isSelected
                           ? "var(--color-bg-primary)"
@@ -395,7 +395,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               className="flex-[2] md:flex-none h-11 px-5 rounded-lg text-sm font-medium cursor-pointer transition-opacity"
               style={{
                 background: canSave ? "var(--color-accent)" : "var(--color-bg-tertiary)",
-                color: canSave ? "var(--color-bg-primary)" : "var(--color-text-muted)",
+                color: canSave ? "var(--color-bg-primary)" : "var(--color-disabled)",
               }}
             >
               {strings.save}
@@ -409,7 +409,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               className="w-full h-10 rounded-lg text-sm font-medium cursor-pointer transition-colors"
               style={{
                 color: confirmingDelete ? "var(--color-bg-primary)" : "var(--color-text-muted)",
-                background: confirmingDelete ? "var(--color-cat-errand)" : "transparent",
+                background: confirmingDelete ? "var(--color-danger)" : "transparent",
               }}
             >
               {confirmingDelete ? strings.confirmDelete : strings.delete}

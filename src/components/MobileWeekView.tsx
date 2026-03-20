@@ -205,7 +205,7 @@ function MobileEventCard({ event, onClick, onStatusToggle }: { event: CalendarEv
           border: isCompleted
             ? "none"
             : `2px solid ${isSkipped ? "var(--color-text-muted)" : categoryConfig[event.category].colorVar}`,
-          background: isCompleted ? "var(--color-cat-health)" : "transparent",
+          background: isCompleted ? "var(--color-success)" : "transparent",
         }}
         aria-label={isCompleted ? strings.statusPlanned : strings.statusCompleted}
       >

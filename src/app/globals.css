@@ -6,14 +6,23 @@
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f2f2f7;
   --color-bg-tertiary: #e5e5ea;
+  --color-surface-elevated: #ffffff;
   --color-text-primary: #000000;
   --color-text-secondary: #636366;
   --color-text-muted: #aeaeb2;
   --color-border: #d1d1d6;
+  --color-separator: #c6c6c8;
   --color-accent: #007aff;
   --color-accent-hover: #0056b3;
   --color-nav-active: #007aff;
   --color-nav-inactive: #8e8e93;
+
+  /* Semantic state colors */
+  --color-success: #34c759;
+  --color-warning: #ff9500;
+  --color-danger: #ff3b30;
+  --color-disabled: #aeaeb2;
+  --color-overlay: rgba(0, 0, 0, 0.3);
 
   /* Category colors — Apple system palette */
   --color-cat-work: #007aff;
@@ -28,14 +37,22 @@
   --color-bg-primary: #000000;
   --color-bg-secondary: #1c1c1e;
   --color-bg-tertiary: #2c2c2e;
+  --color-surface-elevated: #2c2c2e;
   --color-text-primary: #ffffff;
   --color-text-secondary: #98989d;
   --color-text-muted: #636366;
   --color-border: #38383a;
+  --color-separator: #48484a;
   --color-accent: #0a84ff;
   --color-accent-hover: #007aff;
   --color-nav-active: #0a84ff;
   --color-nav-inactive: #98989d;
+
+  --color-success: #30d158;
+  --color-warning: #ff9f0a;
+  --color-danger: #ff453a;
+  --color-disabled: #636366;
+  --color-overlay: rgba(0, 0, 0, 0.5);
 
   --color-cat-work: #0a84ff;
   --color-cat-personal: #bf5af2;
@@ -49,20 +66,115 @@
   --color-bg-primary: #f0f7f7;
   --color-bg-secondary: #e2efef;
   --color-bg-tertiary: #d0e3e3;
+  --color-surface-elevated: #f0f7f7;
   --color-text-primary: #0f2b2b;
   --color-text-secondary: #3d6363;
   --color-text-muted: #7a9e9e;
   --color-border: #b8d4d4;
+  --color-separator: #a0c4c4;
   --color-accent: #0d9488;
   --color-accent-hover: #0a7a70;
   --color-nav-active: #0d9488;
   --color-nav-inactive: #6b9e9e;
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-disabled: #7a9e9e;
+  --color-overlay: rgba(0, 0, 0, 0.3);
 
   --color-cat-work: #0d9488;
   --color-cat-personal: #8b5cf6;
   --color-cat-health: #22c55e;
   --color-cat-errand: #f59e0b;
   --color-cat-other: #7a9e9e;
+}
+
+/* ─── Lavender theme — soft violet, calming and warm ─── */
+[data-theme="lavender"] {
+  --color-bg-primary: #f8f5fc;
+  --color-bg-secondary: #eee8f6;
+  --color-bg-tertiary: #e0d6ed;
+  --color-surface-elevated: #f8f5fc;
+  --color-text-primary: #1e1228;
+  --color-text-secondary: #5c4d6e;
+  --color-text-muted: #9585a8;
+  --color-border: #cfc2de;
+  --color-separator: #bfaed2;
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #7c3aed;
+  --color-nav-active: #8b5cf6;
+  --color-nav-inactive: #9585a8;
+
+  --color-success: #34c759;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-disabled: #9585a8;
+  --color-overlay: rgba(0, 0, 0, 0.3);
+
+  --color-cat-work: #8b5cf6;
+  --color-cat-personal: #ec4899;
+  --color-cat-health: #34c759;
+  --color-cat-errand: #f59e0b;
+  --color-cat-other: #9585a8;
+}
+
+/* ─── Mist Blue theme — cool blue-gray, serene and focused ─── */
+[data-theme="mist"] {
+  --color-bg-primary: #f3f6fa;
+  --color-bg-secondary: #e6ecf3;
+  --color-bg-tertiary: #d5dee9;
+  --color-surface-elevated: #f3f6fa;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #8694a8;
+  --color-border: #c3cdd9;
+  --color-separator: #b0bdcc;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-nav-active: #3b82f6;
+  --color-nav-inactive: #8694a8;
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-disabled: #8694a8;
+  --color-overlay: rgba(0, 0, 0, 0.3);
+
+  --color-cat-work: #3b82f6;
+  --color-cat-personal: #a855f7;
+  --color-cat-health: #22c55e;
+  --color-cat-errand: #f59e0b;
+  --color-cat-other: #8694a8;
+}
+
+/* ─── Cosmic Orange theme — warm amber, energetic but restrained ─── */
+[data-theme="cosmic"] {
+  --color-bg-primary: #fdf8f3;
+  --color-bg-secondary: #f6ece0;
+  --color-bg-tertiary: #ebdccc;
+  --color-surface-elevated: #fdf8f3;
+  --color-text-primary: #27190d;
+  --color-text-secondary: #6b5340;
+  --color-text-muted: #a08c78;
+  --color-border: #d9c8b4;
+  --color-separator: #ccb89f;
+  --color-accent: #ea580c;
+  --color-accent-hover: #c2410c;
+  --color-nav-active: #ea580c;
+  --color-nav-inactive: #a08c78;
+
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-danger: #dc2626;
+  --color-disabled: #a08c78;
+  --color-overlay: rgba(0, 0, 0, 0.3);
+
+  --color-cat-work: #ea580c;
+  --color-cat-personal: #d946ef;
+  --color-cat-health: #22c55e;
+  --color-cat-errand: #eab308;
+  --color-cat-other: #a08c78;
 }
 
 @theme inline {

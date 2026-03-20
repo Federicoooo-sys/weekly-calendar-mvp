@@ -109,9 +109,19 @@ const en = {
   settingsThemeLight: "Light",
   settingsThemeDark: "Dark",
   settingsThemeBlue: "Blue",
+  settingsThemeLavender: "Lavender",
+  settingsThemeMist: "Mist Blue",
+  settingsThemeCosmic: "Cosmic",
   settingsLanguageEn: "English",
   settingsLanguageZh: "简体中文",
   settingsAppearance: "Appearance",
+
+  // Circle page (placeholder)
+  navCircle: "Circle",
+  circlePageTitle: "Your Circle",
+  circleEmptyTitle: "Private accountability",
+  circleEmptyDescription: "Share weekly summaries with family or close friends. See how each other's weeks went — privately, on your terms.",
+  circleComingSoon: "Coming soon",
 } as const;
 
 /** Keys are fixed, values are any string — so other locales can provide translations. */

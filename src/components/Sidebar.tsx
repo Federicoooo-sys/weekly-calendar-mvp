@@ -13,6 +13,7 @@ export default function Sidebar() {
   const navItems = [
     { href: "/", label: t.navWeek },
     { href: "/history", label: t.navHistory },
+    { href: "/circle", label: t.navCircle },
     { href: "/settings", label: t.navSettings },
   ];
 

@@ -3,12 +3,15 @@
 import { usePreferences } from "@/hooks/usePreferences";
 import type { SupportedLocale } from "@/constants/strings";
 
-type Theme = "light" | "dark" | "blue";
+type Theme = "light" | "dark" | "blue" | "lavender" | "mist" | "cosmic";
 
-const THEMES: { value: Theme; labelKey: "settingsThemeLight" | "settingsThemeDark" | "settingsThemeBlue"; preview: string }[] = [
+const THEMES: { value: Theme; labelKey: keyof typeof import("@/constants/locales/en").default; preview: string }[] = [
   { value: "light", labelKey: "settingsThemeLight", preview: "#ffffff" },
   { value: "dark", labelKey: "settingsThemeDark", preview: "#000000" },
   { value: "blue", labelKey: "settingsThemeBlue", preview: "#0d9488" },
+  { value: "lavender", labelKey: "settingsThemeLavender", preview: "#8b5cf6" },
+  { value: "mist", labelKey: "settingsThemeMist", preview: "#3b82f6" },
+  { value: "cosmic", labelKey: "settingsThemeCosmic", preview: "#ea580c" },
 ];
 
 const LANGUAGES: { value: SupportedLocale; labelKey: "settingsLanguageEn" | "settingsLanguageZh" }[] = [
@@ -36,14 +39,14 @@ export default function SettingsPage() {
         >
           {t.settingsAppearance}
         </h3>
-        <div className="flex gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {THEMES.map((opt) => {
             const isSelected = opt.value === theme;
             return (
               <button
                 key={opt.value}
                 onClick={() => setTheme(opt.value)}
-                className="flex-1 flex flex-col items-center gap-2 py-3 rounded-xl cursor-pointer transition-colors"
+                className="flex flex-col items-center gap-2 py-3 rounded-xl cursor-pointer transition-colors"
                 style={{
                   background: "var(--color-bg-secondary)",
                   border: isSelected

@@ -107,9 +107,9 @@ function SummaryBar({ summary }: { summary: WeekSummary }) {
           className="text-sm font-semibold"
           style={{
             color: summary.completionRate >= 70
-              ? "var(--color-cat-health)"
+              ? "var(--color-success)"
               : summary.completionRate >= 40
-                ? "var(--color-cat-errand)"
+                ? "var(--color-warning)"
                 : "var(--color-text-muted)",
           }}
         >
@@ -126,7 +126,7 @@ function SummaryBar({ summary }: { summary: WeekSummary }) {
         {summary.completed > 0 && (
           <StatPill
             label={strings.historySummaryCompleted.replace("{count}", String(summary.completed))}
-            color="var(--color-cat-health)"
+            color="var(--color-success)"
           />
         )}
         {summary.skipped > 0 && (
@@ -138,7 +138,7 @@ function SummaryBar({ summary }: { summary: WeekSummary }) {
         {summary.unresolved > 0 && (
           <StatPill
             label={strings.historySummaryUnresolved.replace("{count}", String(summary.unresolved))}
-            color="var(--color-cat-errand)"
+            color="var(--color-warning)"
           />
         )}
       </div>
@@ -175,7 +175,7 @@ function ReadOnlyEventRow({ event }: { event: CalendarEvent }) {
           border: isCompleted
             ? "none"
             : `2px solid ${isSkipped ? "var(--color-text-muted)" : categoryConfig[event.category].colorVar}`,
-          background: isCompleted ? "var(--color-cat-health)" : "transparent",
+          background: isCompleted ? "var(--color-success)" : "transparent",
         }}
       >
         {isCompleted && (

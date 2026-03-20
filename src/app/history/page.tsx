@@ -119,10 +119,10 @@ function WeekCard({
             className="text-xs font-medium px-2 py-0.5 rounded-full"
             style={{
               background: summary.completionRate >= 70
-                ? "var(--color-cat-health)"
+                ? "var(--color-success)"
                 : summary.completionRate >= 40
-                  ? "var(--color-cat-errand)"
-                  : "var(--color-text-muted)",
+                  ? "var(--color-warning)"
+                  : "var(--color-disabled)",
               color: "var(--color-bg-primary)",
             }}
           >
@@ -137,7 +137,7 @@ function WeekCard({
           {strings.historySummaryTotal.replace("{count}", String(summary.total))}
         </span>
         {summary.completed > 0 && (
-          <span className="text-xs" style={{ color: "var(--color-cat-health)" }}>
+          <span className="text-xs" style={{ color: "var(--color-success)" }}>
             {summary.completed} ✓
           </span>
         )}
@@ -147,7 +147,7 @@ function WeekCard({
           </span>
         )}
         {summary.unresolved > 0 && (
-          <span className="text-xs" style={{ color: "var(--color-cat-errand)" }}>
+          <span className="text-xs" style={{ color: "var(--color-warning)" }}>
             {summary.unresolved} —
           </span>
         )}
