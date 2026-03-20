@@ -8,7 +8,7 @@ type Mode = "signin" | "signup" | "confirmation" | "forgot" | "reset_sent";
 
 export default function AuthPage() {
   const { signIn, signUp, resetPassword } = useAuth();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -184,38 +184,25 @@ export default function AuthPage() {
             className="text-xl font-semibold mb-2"
             style={{ color: "var(--color-text-primary)" }}
           >
-            {mode === "forgot" ? t.authResetPassword : t.authWelcome}
+            {mode === "forgot"
+              ? t.authResetPassword
+              : mode === "signup"
+                ? t.authWelcomeSignUp
+                : t.authWelcome}
           </h1>
           <p
             className="text-sm"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            {mode === "forgot" ? "" : t.authWelcomeDescription}
+            {mode === "forgot"
+              ? ""
+              : mode === "signup"
+                ? t.authSignUpDescription
+                : t.authWelcomeDescription}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Invite code — signup only */}
-          {mode === "signup" && (
-            <div>
-              <label
-                className="block text-xs font-medium mb-1.5"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {t.authInviteCode}
-              </label>
-              <input
-                type="text"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                placeholder={t.authInviteCodePlaceholder}
-                className="w-full h-11 rounded-lg px-3 text-sm outline-none font-mono tracking-wider focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-1"
-                style={inputStyle}
-                required
-              />
-            </div>
-          )}
-
           {/* Display name — signup only */}
           {mode === "signup" && (
             <div>
@@ -289,6 +276,33 @@ export default function AuthPage() {
             </div>
           )}
 
+          {/* Invite code — signup only, last field */}
+          {mode === "signup" && (
+            <div>
+              <label
+                className="block text-xs font-medium mb-1.5"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                {t.authInviteCode}
+              </label>
+              <input
+                type="text"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                placeholder={t.authInviteCodePlaceholder}
+                className="w-full h-11 rounded-lg px-3 text-sm outline-none font-mono tracking-wider focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-1"
+                style={inputStyle}
+                required
+              />
+              <p
+                className="text-xs mt-1.5 px-1"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                {t.authInviteCodeHint}
+              </p>
+            </div>
+          )}
+
           {/* Error */}
           {error && (
             <p
@@ -325,7 +339,7 @@ export default function AuthPage() {
           {mode === "forgot" ? (
             <button
               onClick={() => { setMode("signin"); setError(null); }}
-              className="text-xs font-medium cursor-pointer"
+              className="text-sm font-medium cursor-pointer"
               style={{ color: "var(--color-accent)" }}
             >
               {t.authBackToSignIn}
@@ -333,8 +347,8 @@ export default function AuthPage() {
           ) : (
             <>
               <span
-                className="text-xs"
-                style={{ color: "var(--color-text-muted)" }}
+                className="text-sm"
+                style={{ color: "var(--color-text-secondary)" }}
               >
                 {mode === "signin" ? t.authNoAccount : t.authHaveAccount}{" "}
               </span>
@@ -343,7 +357,7 @@ export default function AuthPage() {
                   setMode(mode === "signin" ? "signup" : "signin");
                   setError(null);
                 }}
-                className="text-xs font-medium cursor-pointer"
+                className="text-sm font-semibold cursor-pointer"
                 style={{ color: "var(--color-accent)" }}
               >
                 {mode === "signin" ? t.authSignUp : t.authSignIn}

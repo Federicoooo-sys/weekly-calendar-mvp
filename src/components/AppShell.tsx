@@ -11,17 +11,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const { count: unreadCount } = useNotificationCount();
 
-  // Loading state — show nothing to avoid flash
+  // Loading state — branded splash
   if (loading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
+        className="min-h-screen flex flex-col items-center justify-center gap-4"
         style={{ background: "var(--color-bg-primary)" }}
       >
         <div
           className="w-6 h-6 rounded-full animate-pulse"
           style={{ background: "var(--color-accent)" }}
         />
+        <p
+          className="text-sm font-medium animate-pulse"
+          style={{ color: "var(--color-text-muted)" }}
+        >
+          Weekly Planner
+        </p>
       </div>
     );
   }
