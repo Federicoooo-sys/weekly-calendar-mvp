@@ -247,6 +247,20 @@ const en = {
   // Coordination — shared event indicator
   sharedEventLabel: "Shared",
   participantCount: "{count} joined",
+
+  // Auth — password reset
+  authForgotPassword: "Forgot password?",
+  authResetPassword: "Reset password",
+  authResetSent: "Check your email",
+  authResetSentDescription: "If an account exists for {email}, we've sent a password reset link.",
+  authNewPassword: "New password",
+  authUpdatePassword: "Update password",
+  authPasswordUpdated: "Password updated. You can now sign in.",
+
+  // Error states
+  errorGeneric: "Something went wrong. Please try again.",
+  errorLoadFailed: "Couldn't load data. Pull to refresh or try again later.",
+  errorOffline: "You appear to be offline.",
 } as const;
 
 /** Keys are fixed, values are any string — so other locales can provide translations. */

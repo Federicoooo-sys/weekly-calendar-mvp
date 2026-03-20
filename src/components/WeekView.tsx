@@ -17,7 +17,7 @@ type ModalState =
 
 export default function WeekView() {
   const { t } = usePreferences();
-  const { week, loading, addEvent, updateEvent, deleteEvent } = useWeekStorage();
+  const { week, loading, error, addEvent, updateEvent, deleteEvent } = useWeekStorage();
   const weekDays = getCurrentWeekDays("mon");
   const weekRange = formatWeekRange(getCurrentWeekStart());
 
@@ -91,6 +91,16 @@ export default function WeekView() {
 
   return (
     <div>
+      {/* Error banner */}
+      {error && (
+        <div
+          className="mb-4 px-3 py-2 rounded-lg text-sm"
+          style={{ background: "var(--color-bg-tertiary)", color: "var(--color-danger)" }}
+        >
+          {t.errorLoadFailed}
+        </div>
+      )}
+
       {/* Week header — title and date range on one line */}
       <div className="flex items-baseline gap-2 mb-4">
         <h2

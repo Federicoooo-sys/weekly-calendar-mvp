@@ -249,6 +249,20 @@ const zh: LocaleStrings = {
   // Coordination — shared event indicator
   sharedEventLabel: "共享",
   participantCount: "{count}人已加入",
+
+  // Auth — password reset
+  authForgotPassword: "忘记密码？",
+  authResetPassword: "重置密码",
+  authResetSent: "请查收邮件",
+  authResetSentDescription: "如果 {email} 对应的账户存在，我们已发送了密码重置链接。",
+  authNewPassword: "新密码",
+  authUpdatePassword: "更新密码",
+  authPasswordUpdated: "密码已更新，现在可以登录了。",
+
+  // Error states
+  errorGeneric: "出了点问题，请稍后重试。",
+  errorLoadFailed: "无法加载数据，请下拉刷新或稍后重试。",
+  errorOffline: "似乎处于离线状态。",
 };
 
 export default zh;

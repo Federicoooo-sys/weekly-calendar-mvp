@@ -74,6 +74,7 @@ export function useWeekStorage() {
   const { user } = useAuth();
   const [week, setWeek] = useState<Week>({ weekStart, events: [] });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Load events from Supabase on mount / when user changes
   useEffect(() => {
@@ -85,21 +86,28 @@ export function useWeekStorage() {
 
     let cancelled = false;
     async function load() {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("user_id", user!.id)
-        .eq("week_start", weekStart)
-        .order("created_at", { ascending: true });
+      setError(null);
+      try {
+        const supabase = createClient();
+        const { data, error: queryError } = await supabase
+          .from("events")
+          .select("*")
+          .eq("user_id", user!.id)
+          .eq("week_start", weekStart)
+          .order("created_at", { ascending: true });
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (!error && data) {
-        const events = data.map(rowToEvent).filter(isValidEvent);
-        setWeek({ weekStart, events });
+        if (queryError) {
+          setError(queryError.message);
+        } else if (data) {
+          const events = data.map(rowToEvent).filter(isValidEvent);
+          setWeek({ weekStart, events });
+        }
+      } catch {
+        if (!cancelled) setError("Failed to load events. Check your connection.");
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     }
 
     load();
@@ -185,5 +193,5 @@ export function useWeekStorage() {
     }
   }, [user]);
 
-  return { week, loading, addEvent, updateEvent, deleteEvent };
+  return { week, loading, error, addEvent, updateEvent, deleteEvent };
 }

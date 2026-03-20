@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { strings } from "@/constants/strings";
 
-type Mode = "signin" | "signup" | "confirmation";
+type Mode = "signin" | "signup" | "confirmation" | "forgot" | "reset_sent";
 
 export default function AuthPage() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +25,14 @@ export default function AuthPage() {
     setSubmitting(true);
 
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        const result = await resetPassword(email);
+        if (result.error) {
+          setError(result.error);
+        } else {
+          setMode("reset_sent");
+        }
+      } else if (mode === "signup") {
         if (!inviteCode.trim()) {
           setError(t.authInviteRequired);
           setSubmitting(false);
@@ -42,7 +49,7 @@ export default function AuthPage() {
         if (result.error) setError(result.error);
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t.errorGeneric);
     } finally {
       setSubmitting(false);
     }
@@ -113,6 +120,57 @@ export default function AuthPage() {
     );
   }
 
+  // ─── Password reset sent screen ───
+  if (mode === "reset_sent") {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: "var(--color-bg-primary)" }}
+      >
+        <div className="w-full max-w-sm text-center">
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: "var(--color-bg-tertiary)" }}
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ color: "var(--color-accent)" }}
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path d="M22 4L12 13L2 4" />
+            </svg>
+          </div>
+          <h1
+            className="text-xl font-semibold mb-2"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            {t.authResetSent}
+          </h1>
+          <p
+            className="text-sm leading-relaxed mb-6"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            {t.authResetSentDescription.replace("{email}", email)}
+          </p>
+          <button
+            onClick={() => { setMode("signin"); setError(null); setPassword(""); }}
+            className="text-sm font-medium cursor-pointer"
+            style={{ color: "var(--color-accent)" }}
+          >
+            {t.authBackToSignIn}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ─── Sign in / Sign up form ───
   return (
     <div
@@ -126,13 +184,13 @@ export default function AuthPage() {
             className="text-xl font-semibold mb-2"
             style={{ color: "var(--color-text-primary)" }}
           >
-            {t.authWelcome}
+            {mode === "forgot" ? t.authResetPassword : t.authWelcome}
           </h1>
           <p
             className="text-sm"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            {t.authWelcomeDescription}
+            {mode === "forgot" ? "" : t.authWelcomeDescription}
           </p>
         </div>
 
@@ -196,24 +254,40 @@ export default function AuthPage() {
             />
           </div>
 
-          {/* Password */}
-          <div>
-            <label
-              className="block text-xs font-medium mb-1.5"
-              style={{ color: "var(--color-text-secondary)" }}
-            >
-              {t.authPassword}
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-11 rounded-lg px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-1"
-              style={inputStyle}
-              minLength={6}
-              required
-            />
-          </div>
+          {/* Password — hidden in forgot mode */}
+          {mode !== "forgot" && (
+            <div>
+              <label
+                className="block text-xs font-medium mb-1.5"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                {t.authPassword}
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-11 rounded-lg px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-1"
+                style={inputStyle}
+                minLength={6}
+                required
+              />
+            </div>
+          )}
+
+          {/* Forgot password — sign in only */}
+          {mode === "signin" && (
+            <div className="text-right -mt-2">
+              <button
+                type="button"
+                onClick={() => { setMode("forgot"); setError(null); }}
+                className="text-xs cursor-pointer"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                {t.authForgotPassword}
+              </button>
+            </div>
+          )}
 
           {/* Error */}
           {error && (
@@ -238,30 +312,44 @@ export default function AuthPage() {
           >
             {submitting
               ? t.authLoading
-              : mode === "signin"
-                ? t.authSignIn
-                : t.authSignUp}
+              : mode === "forgot"
+                ? t.authResetPassword
+                : mode === "signin"
+                  ? t.authSignIn
+                  : t.authSignUp}
           </button>
         </form>
 
         {/* Toggle mode */}
         <div className="text-center mt-6">
-          <span
-            className="text-xs"
-            style={{ color: "var(--color-text-muted)" }}
-          >
-            {mode === "signin" ? t.authNoAccount : t.authHaveAccount}{" "}
-          </span>
-          <button
-            onClick={() => {
-              setMode(mode === "signin" ? "signup" : "signin");
-              setError(null);
-            }}
-            className="text-xs font-medium cursor-pointer"
-            style={{ color: "var(--color-accent)" }}
-          >
-            {mode === "signin" ? t.authSignUp : t.authSignIn}
-          </button>
+          {mode === "forgot" ? (
+            <button
+              onClick={() => { setMode("signin"); setError(null); }}
+              className="text-xs font-medium cursor-pointer"
+              style={{ color: "var(--color-accent)" }}
+            >
+              {t.authBackToSignIn}
+            </button>
+          ) : (
+            <>
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                {mode === "signin" ? t.authNoAccount : t.authHaveAccount}{" "}
+              </span>
+              <button
+                onClick={() => {
+                  setMode(mode === "signin" ? "signup" : "signin");
+                  setError(null);
+                }}
+                className="text-xs font-medium cursor-pointer"
+                style={{ color: "var(--color-accent)" }}
+              >
+                {mode === "signin" ? t.authSignUp : t.authSignIn}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

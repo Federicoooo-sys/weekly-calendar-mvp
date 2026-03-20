@@ -17,6 +17,7 @@ export function useCircle() {
   const { user } = useAuth();
   const [circles, setCircles] = useState<CircleWithMembers[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Load user's circles with members
   const loadCircles = useCallback(async () => {
@@ -26,13 +27,20 @@ export function useCircle() {
       return;
     }
 
+    setError(null);
     const supabase = createClient();
 
     // 1. Get circle IDs the user belongs to
-    const { data: memberships } = await supabase
+    const { data: memberships, error: membershipError } = await supabase
       .from("circle_members")
       .select("circle_id")
       .eq("user_id", user.id);
+
+    if (membershipError) {
+      setError(membershipError.message);
+      setLoading(false);
+      return;
+    }
 
     if (!memberships || memberships.length === 0) {
       setCircles([]);
@@ -211,6 +219,7 @@ export function useCircle() {
   return {
     circles,
     loading,
+    error,
     createCircle,
     joinCircle,
     generateInvite,
