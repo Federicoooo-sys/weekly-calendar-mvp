@@ -1,19 +1,45 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import PageShell from "@/components/PageShell";
 import PastWeekDetail from "@/components/PastWeekDetail";
+import ShareSummaryModal from "@/components/ShareSummaryModal";
 import { getStrings } from "@/constants/strings";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { formatWeekRange } from "@/lib/dates";
 import { getPastWeeks, getWeekSummary, type WeekSummary } from "@/lib/history";
+import { useAuth } from "@/hooks/useAuth";
+import { useCircle } from "@/hooks/useCircle";
+import { useWeeklyShares } from "@/hooks/useWeeklyShares";
 import type { Week, EventCategory } from "@/types";
 
 export default function HistoryPage() {
   const strings = getStrings();
+  const { user } = useAuth();
+  const { circles } = useCircle();
+  const circleIds = useMemo(() => circles.map((c) => c.id), [circles]);
+  const { shareWeek, isShared } = useWeeklyShares(circleIds);
   const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
+  const [shareTarget, setShareTarget] = useState<{ weekStart: string; summary: WeekSummary } | null>(null);
+  const [pastWeeks, setPastWeeks] = useState<Week[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const pastWeeks = useMemo(() => getPastWeeks(), []);
+  useEffect(() => {
+    if (!user) {
+      setPastWeeks([]);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    getPastWeeks(user.id).then((weeks) => {
+      if (!cancelled) {
+        setPastWeeks(weeks);
+        setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [user]);
+
   const summaries = useMemo(
     () => new Map(pastWeeks.map((w) => [w.weekStart, getWeekSummary(w)])),
     [pastWeeks],
@@ -31,19 +57,53 @@ export default function HistoryPage() {
 
   return (
     <PageShell title={strings.historyPageTitle}>
-      {pastWeeks.length === 0 ? (
+      {loading ? (
+        <div className="mt-8 text-center">
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+            {strings.authLoading}
+          </p>
+        </div>
+      ) : pastWeeks.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="space-y-3">
-          {pastWeeks.map((week) => (
-            <WeekCard
-              key={week.weekStart}
-              week={week}
-              summary={summaries.get(week.weekStart)!}
-              onClick={() => setSelectedWeek(week)}
-            />
-          ))}
+          {pastWeeks.map((week) => {
+            const summary = summaries.get(week.weekStart)!;
+            return (
+              <WeekCard
+                key={week.weekStart}
+                week={week}
+                summary={summary}
+                onClick={() => setSelectedWeek(week)}
+                hasCircles={circles.length > 0}
+                onShare={() => setShareTarget({ weekStart: week.weekStart, summary })}
+              />
+            );
+          })}
         </div>
+      )}
+
+      {/* Share summary modal */}
+      {shareTarget && (
+        <ShareSummaryModal
+          weekStart={shareTarget.weekStart}
+          summary={shareTarget.summary}
+          circles={circles}
+          alreadySharedCircleIds={
+            circles.filter((c) => isShared(shareTarget.weekStart, c.id)).map((c) => c.id)
+          }
+          onShare={async (circleId, reflectionNote) => {
+            const circle = circles.find((c) => c.id === circleId);
+            return shareWeek({
+              circleId,
+              weekStart: shareTarget.weekStart,
+              summary: shareTarget.summary,
+              reflectionNote,
+              circleMemberIds: circle?.members.map((m) => m.userId) || [],
+            });
+          }}
+          onClose={() => setShareTarget(null)}
+        />
       )}
     </PageShell>
   );
@@ -83,10 +143,14 @@ function WeekCard({
   week,
   summary,
   onClick,
+  hasCircles,
+  onShare,
 }: {
   week: Week;
   summary: WeekSummary;
   onClick: () => void;
+  hasCircles: boolean;
+  onShare: () => void;
 }) {
   const strings = getStrings();
   const dateRange = formatWeekRange(week.weekStart);
@@ -153,9 +217,9 @@ function WeekCard({
         )}
       </div>
 
-      {/* Row 3: category dots */}
-      {topCategories.length > 0 && (
-        <div className="flex items-center gap-2 mt-2">
+      {/* Row 3: category dots + share */}
+      <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center gap-2">
           {topCategories.map(([cat, count]) => (
             <span key={cat} className="flex items-center gap-1">
               <span
@@ -168,7 +232,16 @@ function WeekCard({
             </span>
           ))}
         </div>
-      )}
+        {hasCircles && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onShare(); }}
+            className="text-[10px] font-medium px-2 py-1 rounded-md cursor-pointer shrink-0"
+            style={{ color: "var(--color-accent)", background: "var(--color-bg-tertiary)" }}
+          >
+            {strings.shareButton}
+          </button>
+        )}
+      </div>
     </button>
   );
 }

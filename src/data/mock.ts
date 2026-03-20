@@ -14,6 +14,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "09:45",
     category: "work",
     status: "completed",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -22,6 +23,7 @@ const mockEvents: CalendarEvent[] = [
     dayKey: "mon",
     category: "errand",
     status: "completed",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -32,6 +34,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "12:00",
     category: "work",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -42,6 +45,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "07:45",
     category: "health",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -52,6 +56,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "15:00",
     category: "personal",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -62,6 +67,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "11:30",
     category: "work",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -72,6 +78,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "11:45",
     category: "work",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -80,6 +87,7 @@ const mockEvents: CalendarEvent[] = [
     dayKey: "thu",
     category: "errand",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -90,6 +98,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "19:00",
     category: "health",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -100,6 +109,7 @@ const mockEvents: CalendarEvent[] = [
     endTime: "11:00",
     category: "work",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -109,6 +119,7 @@ const mockEvents: CalendarEvent[] = [
     startTime: "19:00",
     category: "personal",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
   {
@@ -117,6 +128,7 @@ const mockEvents: CalendarEvent[] = [
     dayKey: "sun",
     category: "personal",
     status: "planned",
+    visibility: "private",
     createdAt: "2026-03-16T08:00:00Z",
   },
 ];

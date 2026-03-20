@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { usePreferences } from "@/hooks/usePreferences";
 import { formatShortDate } from "@/lib/dates";
 
-export default function Sidebar() {
+export default function Sidebar({ unreadCount = 0 }: { unreadCount?: number }) {
   const pathname = usePathname();
   const { t } = usePreferences();
   const todayLabel = formatShortDate(new Date());
@@ -49,7 +49,15 @@ export default function Sidebar() {
                   background: isActive ? "var(--color-bg-tertiary)" : "transparent",
                 }}
               >
-                {item.label}
+                <span className="flex items-center gap-2">
+                  {item.label}
+                  {item.href === "/circle" && unreadCount > 0 && (
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ background: "var(--color-accent)" }}
+                    />
+                  )}
+                </span>
               </Link>
             );
           })}

@@ -1,9 +1,8 @@
-import type { Week, CalendarEvent, EventCategory, DayOfWeek } from "@/types";
+import type { Week, CalendarEvent, EventCategory, EventVisibility, DayOfWeek } from "@/types";
 import { isValidEvent } from "@/hooks/useWeekStorage";
 import { getCurrentWeekStart, getOrderedDays, getDateForDay, formatShortDate } from "./dates";
 import { getStrings, type LocaleStrings } from "@/constants/strings";
-
-const STORAGE_PREFIX = "weekplanner_week_";
+import { createClient } from "./supabase";
 
 const DAY_FULL_KEYS: Record<DayOfWeek, keyof LocaleStrings> = {
   mon: "dayMon",
@@ -32,39 +31,55 @@ export interface PastWeekDay {
   events: CalendarEvent[];
 }
 
+/** Maps a Supabase row to our CalendarEvent type. */
+function rowToEvent(row: Record<string, unknown>): CalendarEvent {
+  return {
+    id: row.id as string,
+    title: row.title as string,
+    dayKey: row.day_key as DayOfWeek,
+    startTime: (row.start_time as string) || undefined,
+    endTime: (row.end_time as string) || undefined,
+    category: row.category as EventCategory,
+    status: row.status as CalendarEvent["status"],
+    visibility: (row.visibility as EventVisibility) || "private",
+    note: (row.note as string) || undefined,
+    createdAt: row.created_at as string,
+  };
+}
+
 /**
- * Scans localStorage for all past weeks (before the current week).
+ * Fetches all past weeks (before the current week) from Supabase.
  * Returns them sorted most-recent-first.
  */
-export function getPastWeeks(): Week[] {
+export async function getPastWeeks(userId: string): Promise<Week[]> {
   const currentWeekStart = getCurrentWeekStart();
-  const weeks: Week[] = [];
+  const supabase = createClient();
 
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!key || !key.startsWith(STORAGE_PREFIX)) continue;
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("user_id", userId)
+    .lt("week_start", currentWeekStart)
+    .order("week_start", { ascending: false })
+    .order("created_at", { ascending: true });
 
-      const weekStart = key.slice(STORAGE_PREFIX.length);
-      if (weekStart >= currentWeekStart) continue;
+  if (error || !data) return [];
 
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-
-      try {
-        const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.events)) {
-          weeks.push({ weekStart, events: parsed.events.filter(isValidEvent) });
-        }
-      } catch {
-        // Skip corrupted entries
-      }
-    }
-  } catch {
-    // localStorage unavailable
+  // Group events by week_start
+  const weekMap = new Map<string, CalendarEvent[]>();
+  for (const row of data) {
+    const event = rowToEvent(row);
+    if (!isValidEvent(event)) continue;
+    const ws = row.week_start as string;
+    if (!weekMap.has(ws)) weekMap.set(ws, []);
+    weekMap.get(ws)!.push(event);
   }
 
-  // Most recent first
+  // Convert to Week[] sorted most-recent-first
+  const weeks: Week[] = [];
+  for (const [weekStart, events] of weekMap) {
+    weeks.push({ weekStart, events });
+  }
   weeks.sort((a, b) => b.weekStart.localeCompare(a.weekStart));
   return weeks;
 }

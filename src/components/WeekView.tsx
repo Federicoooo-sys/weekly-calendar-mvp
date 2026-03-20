@@ -17,7 +17,7 @@ type ModalState =
 
 export default function WeekView() {
   const { t } = usePreferences();
-  const { week, addEvent, updateEvent, deleteEvent } = useWeekStorage();
+  const { week, loading, addEvent, updateEvent, deleteEvent } = useWeekStorage();
   const weekDays = getCurrentWeekDays("mon");
   const weekRange = formatWeekRange(getCurrentWeekStart());
 
@@ -57,6 +57,7 @@ export default function WeekView() {
         category: data.category,
         note: data.note?.trim() || undefined,
         status: data.status,
+        visibility: data.visibility,
       });
     } else {
       addEvent({
@@ -66,6 +67,7 @@ export default function WeekView() {
         endTime: data.endTime || undefined,
         category: data.category,
         note: data.note || undefined,
+        visibility: data.visibility,
       });
     }
     setModalState(null);

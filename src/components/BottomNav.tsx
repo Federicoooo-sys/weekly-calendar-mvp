@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePreferences } from "@/hooks/usePreferences";
 
-export default function BottomNav() {
+export default function BottomNav({ unreadCount = 0 }: { unreadCount?: number }) {
   const pathname = usePathname();
   const { t } = usePreferences();
 
@@ -69,7 +69,15 @@ export default function BottomNav() {
               className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 text-xs transition-colors"
               style={{ color: isActive ? "var(--color-nav-active)" : "var(--color-nav-inactive)" }}
             >
-              {item.icon}
+              <span className="relative">
+                {item.icon}
+                {item.href === "/circle" && unreadCount > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+                    style={{ background: "var(--color-accent)" }}
+                  />
+                )}
+              </span>
               <span>{item.label}</span>
             </Link>
           );

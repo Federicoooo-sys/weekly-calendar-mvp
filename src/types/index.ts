@@ -12,6 +12,8 @@ export type EventCategory = "work" | "personal" | "health" | "errand" | "other";
 
 export type EventStatus = "planned" | "completed" | "skipped";
 
+export type EventVisibility = "private" | "circle";
+
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -22,6 +24,8 @@ export interface CalendarEvent {
   endTime?: string;
   category: EventCategory;
   status: EventStatus;
+  /** Controls who can see this event. Default: "private". */
+  visibility: EventVisibility;
   /** Optional short note for context, e.g. "bring laptop" */
   note?: string;
   /** ISO 8601 timestamp. Set once at creation. */
@@ -159,4 +163,108 @@ export interface SocialResponse {
   content: string;
   /** ISO 8601 timestamp */
   createdAt: string;
+}
+
+/** An invite to join a specific circle. */
+export interface CircleInvite {
+  id: string;
+  circleId: string;
+  invitedBy: string;
+  code: string;
+  claimedBy?: string;
+  claimedAt?: string;
+  createdAt: string;
+}
+
+/** A comment on a shared event. */
+export interface Comment {
+  id: string;
+  eventId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  /** Joined from profiles — only available on read */
+  displayName?: string;
+}
+
+/** Circle with its members — used in the circle page UI. */
+export interface CircleWithMembers extends Circle {
+  members: (CircleMembership & { displayName: string })[];
+}
+
+/** A reaction on a shared event. */
+export interface Reaction {
+  id: string;
+  eventId: string;
+  userId: string;
+  emoji: "👍" | "❤️" | "👏" | "🔥";
+  createdAt: string;
+  displayName?: string;
+}
+
+/** Allowed reaction emojis. */
+export const REACTION_EMOJIS = ["👍", "❤️", "👏", "🔥"] as const;
+export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
+
+/** Participation role — how the participant row was created. */
+export type ParticipantRole = "invite" | "request";
+
+/** Participation status — lifecycle of an invite or join request. */
+export type ParticipantStatus = "invited" | "requested" | "accepted" | "declined";
+
+/** A participant row for an event — covers invites, join requests, and accepted participants. */
+export interface EventParticipant {
+  id: string;
+  eventId: string;
+  userId: string;
+  role: ParticipantRole;
+  status: ParticipantStatus;
+  invitedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Joined from profiles */
+  displayName?: string;
+}
+
+/** An in-app notification. */
+export type NotificationType = "comment" | "reaction" | "member_joined" | "summary_shared" | "event_invite" | "join_request" | "participant_response";
+export interface Notification {
+  id: string;
+  userId: string;
+  actorId: string;
+  type: NotificationType;
+  targetId?: string;
+  targetLabel: string;
+  read: boolean;
+  createdAt: string;
+  /** Joined from profiles */
+  actorName?: string;
+}
+
+/** A shared weekly summary snapshot. */
+export interface SharedWeeklySummary {
+  id: string;
+  userId: string;
+  circleId: string;
+  weekStart: string;
+  reflectionNote?: string;
+  totalEvents: number;
+  completedEvents: number;
+  skippedEvents: number;
+  completionRate: number;
+  sharedAt: string;
+  /** Joined from profiles */
+  displayName?: string;
+}
+
+/** A unified feed item for the activity feed. */
+export interface FeedItem {
+  id: string;
+  type: "summary_shared" | "member_joined";
+  actorName: string;
+  timestamp: string;
+  /** For summary_shared */
+  summary?: SharedWeeklySummary;
+  /** For member_joined */
+  circleName?: string;
 }

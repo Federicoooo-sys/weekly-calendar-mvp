@@ -1,9 +1,8 @@
 /**
- * Sharing & privacy rules for future social/accountability features.
+ * Sharing & privacy rules for the social/accountability layer.
  *
- * This file encodes the product rules that will govern how data flows
- * between users. No backend or auth logic yet — just the rules themselves,
- * documented and typed so they can be implemented consistently later.
+ * Phase 1 uses per-event visibility ("private" | "circle") enforced by RLS.
+ * These constants and helpers encode additional product rules and limits.
  *
  * Core philosophy: privacy-first, intentional sharing only.
  */

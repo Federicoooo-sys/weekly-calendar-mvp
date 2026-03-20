@@ -4,7 +4,12 @@ import { useState, useEffect, useRef } from "react";
 import { getStrings } from "@/constants/strings";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { getTimeSlots } from "@/lib/dates";
-import type { CalendarEvent, DayInfo, DayOfWeek, EventCategory, EventStatus } from "@/types";
+import { useEventParticipants } from "@/hooks/useEventParticipants";
+import { useCircle } from "@/hooks/useCircle";
+import { useAuth } from "@/hooks/useAuth";
+import ParticipantList from "./ParticipantList";
+import InviteToEventModal from "./InviteToEventModal";
+import type { CalendarEvent, DayInfo, DayOfWeek, EventCategory, EventStatus, EventVisibility } from "@/types";
 
 const CATEGORIES: EventCategory[] = ["work", "personal", "health", "errand", "other"];
 
@@ -22,6 +27,7 @@ export interface EventFormData {
   category: EventCategory;
   note: string;
   status: EventStatus;
+  visibility: EventVisibility;
 }
 
 interface EventFormModalProps {
@@ -50,10 +56,38 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
   const [category, setCategory] = useState<EventCategory>(event?.category ?? "other");
   const [note, setNote] = useState(event?.note ?? "");
   const [status, setStatus] = useState<EventStatus>(event?.status ?? "planned");
+  const [visibility, setVisibility] = useState<EventVisibility>(event?.visibility ?? "private");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [titleTouched, setTitleTouched] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const titleRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
+  const { circles } = useCircle();
+
+  // Participants — only loaded for circle-visible events in edit mode
+  const showParticipants = isEditing && event?.visibility === "circle";
+  const {
+    participants,
+    loading: participantsLoading,
+    inviteUser,
+    respond,
+  } = useEventParticipants(showParticipants ? event?.id ?? null : null);
+
+  // Eligible circle members for invite (exclude self and already-participating)
+  const eligibleMembers = (() => {
+    if (!showParticipants || !user) return [];
+    const participantIds = new Set(participants.map((p) => p.userId));
+    const members: { userId: string; displayName: string }[] = [];
+    for (const circle of circles) {
+      for (const m of circle.members) {
+        if (m.userId !== user.id && !participantIds.has(m.userId) && !members.some((e) => e.userId === m.userId)) {
+          members.push({ userId: m.userId, displayName: m.displayName });
+        }
+      }
+    }
+    return members;
+  })();
 
   // Auto-focus the title input on mount
   useEffect(() => {
@@ -77,7 +111,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
 
   function handleSave() {
     if (!canSave) return;
-    onSave({ title, dayKey, startTime, endTime, category, note, status });
+    onSave({ title, dayKey, startTime, endTime, category, note, status, visibility });
   }
 
   function handleDelete() {
@@ -352,6 +386,54 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
             </div>
           )}
 
+          {/* Visibility */}
+          <div>
+            <label
+              className="block text-xs font-medium mb-1.5"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              {strings.visibilityLabel}
+            </label>
+            <div className="flex gap-2">
+              {(["private", "circle"] as EventVisibility[]).map((v) => {
+                const isSelected = v === visibility;
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setVisibility(v)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium cursor-pointer transition-colors"
+                    style={{
+                      background: isSelected
+                        ? v === "circle" ? "var(--color-accent)" : "var(--color-bg-tertiary)"
+                        : "var(--color-bg-secondary)",
+                      color: isSelected
+                        ? v === "circle" ? "var(--color-bg-primary)" : "var(--color-text-primary)"
+                        : "var(--color-text-secondary)",
+                      border: isSelected
+                        ? "1px solid transparent"
+                        : "1px solid var(--color-border)",
+                    }}
+                  >
+                    {v === "private" ? (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    ) : (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    )}
+                    {v === "private" ? strings.visibilityPrivate : strings.visibilityCircle}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Note */}
           <div>
             <label
@@ -373,6 +455,42 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               }}
             />
           </div>
+
+          {/* Participants — only for circle events in edit mode */}
+          {showParticipants && !participantsLoading && (
+            <div>
+              {participants.length > 0 && (
+                <ParticipantList
+                  participants={participants}
+                  isOwner={true}
+                  currentUserId={user?.id}
+                  onAccept={async (pid, notifyUserId) => {
+                    await respond(pid, "accepted", {
+                      actorName: "",
+                      eventTitle: event?.title || "",
+                      notifyUserId,
+                    });
+                  }}
+                  onDecline={async (pid, notifyUserId) => {
+                    await respond(pid, "declined", {
+                      actorName: "",
+                      eventTitle: event?.title || "",
+                      notifyUserId,
+                    });
+                  }}
+                />
+              )}
+              {eligibleMembers.length > 0 && (
+                <button
+                  onClick={() => setShowInviteModal(true)}
+                  className="mt-2 text-xs font-medium px-3 py-2 rounded-lg cursor-pointer"
+                  style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
+                >
+                  {strings.inviteToEvent}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Actions — layout differs between mobile and desktop */}
@@ -416,6 +534,17 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
             </button>
           )}
         </div>
+
+        {/* Invite to event modal */}
+        {showInviteModal && event && (
+          <InviteToEventModal
+            eventTitle={event.title}
+            eligibleMembers={eligibleMembers}
+            participants={participants}
+            onInvite={async (userId) => inviteUser(userId, event.title)}
+            onClose={() => setShowInviteModal(false)}
+          />
+        )}
       </div>
     </div>
   );

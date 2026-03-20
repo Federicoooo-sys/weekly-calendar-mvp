@@ -1,6 +1,7 @@
 "use client";
 
 import { usePreferences } from "@/hooks/usePreferences";
+import { useAuth } from "@/hooks/useAuth";
 import type { SupportedLocale } from "@/constants/strings";
 
 type Theme = "light" | "dark" | "blue" | "lavender" | "mist" | "cosmic";
@@ -21,6 +22,7 @@ const LANGUAGES: { value: SupportedLocale; labelKey: "settingsLanguageEn" | "set
 
 export default function SettingsPage() {
   const { theme, language, t, setTheme, setLanguage } = usePreferences();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="px-4 py-4 md:px-6 md:py-6 max-w-md">
@@ -116,6 +118,28 @@ export default function SettingsPage() {
             );
           })}
         </div>
+      </section>
+
+      {/* Account section */}
+      <section className="mt-8 pt-6" style={{ borderTop: "1px solid var(--color-border)" }}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-sm font-medium" style={{ color: "var(--color-text-primary)" }}>
+              {user?.email}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={signOut}
+          className="w-full h-10 rounded-lg text-sm font-medium cursor-pointer transition-colors"
+          style={{
+            color: "var(--color-danger)",
+            background: "var(--color-bg-secondary)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          {t.authSignOut}
+        </button>
       </section>
     </div>
   );

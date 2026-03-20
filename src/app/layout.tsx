@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
-import Sidebar from "@/components/Sidebar";
-import BottomNav from "@/components/BottomNav";
-import { PreferencesProvider } from "@/hooks/usePreferences";
+import { AuthProvider } from "@/hooks/useAuth";
+import AppShell from "@/components/AppShell";
 import { strings } from "@/constants/strings";
 import "./globals.css";
 
@@ -46,14 +45,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={`${geistSans.variable} antialiased`}>
-        <PreferencesProvider>
-          <Sidebar />
-          {/* Main content area: offset on desktop for sidebar, bottom padding on mobile for nav */}
-          <main className="min-h-screen pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0 md:pl-56">
-            {children}
-          </main>
-          <BottomNav />
-        </PreferencesProvider>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );
