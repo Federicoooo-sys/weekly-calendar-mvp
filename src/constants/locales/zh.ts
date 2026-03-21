@@ -279,6 +279,27 @@ const zh: LocaleStrings = {
   inviteRequestDeclined: "已拒绝邀请。",
   inviteRequestReadOnly: "共享活动 — 只有组织者可以编辑",
 
+  // Coordination
+  navCoordinate: "协调",
+  coordinateTitle: "比较日程",
+  coordinateDescription: "并排查看圈子成员的共享事件，找到合适的时间。",
+  coordinateSelectCircle: "选择圈子",
+  coordinateSelectMembers: "选择成员",
+  coordinateSelectMembersHint: "最多选择4位成员",
+  coordinateCompare: "比较",
+  coordinateBack: "返回",
+  coordinateNoSharedEvents: "没有共享事件",
+  coordinateCreateGroup: "创建群组活动",
+  coordinateNoCircles: "先加入或创建一个圈子才能比较日程。",
+
+  // Circle join code
+  circleJoinCode: "圈子代码",
+  circleJoinCodeHint: "任何人都可以用此代码加入",
+  circleJoinCodeEdit: "编辑代码",
+  circleJoinCodeSave: "保存",
+  circleJoinCodeEmpty: "未设置代码",
+  circleJoinCodeSet: "设置加入代码",
+
   // Error states
   errorGeneric: "出了点问题，请稍后重试。",
   errorLoadFailed: "无法加载数据，请下拉刷新或稍后重试。",

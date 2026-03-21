@@ -195,6 +195,8 @@ export interface Comment {
 
 /** Circle with its members — used in the circle page UI. */
 export interface CircleWithMembers extends Circle {
+  /** Persistent join code set by the owner. */
+  joinCode?: string;
   members: (CircleMembership & { displayName: string })[];
 }
 

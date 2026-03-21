@@ -60,7 +60,7 @@ export default function BottomNav({ unreadCount = 0 }: { unreadCount?: number })
          style={{ borderColor: "var(--color-border)", background: "var(--color-bg-primary)", paddingBottom: "env(safe-area-inset-bottom)" }}>
       <div className="flex items-center justify-around h-14">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

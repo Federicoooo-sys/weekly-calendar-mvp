@@ -37,7 +37,7 @@ export default function Sidebar({ unreadCount = 0 }: { unreadCount?: number }) {
 
         <nav className="flex-1 px-3 space-y-0.5">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

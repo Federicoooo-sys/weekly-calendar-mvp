@@ -277,6 +277,27 @@ const en = {
   inviteRequestDeclined: "Invitation declined.",
   inviteRequestReadOnly: "Shared event — only the organizer can edit",
 
+  // Coordination
+  navCoordinate: "Coordinate",
+  coordinateTitle: "Compare Schedules",
+  coordinateDescription: "See circle members' shared events side by side to find a good time.",
+  coordinateSelectCircle: "Choose a circle",
+  coordinateSelectMembers: "Who to compare",
+  coordinateSelectMembersHint: "Select up to 4 members",
+  coordinateCompare: "Compare",
+  coordinateBack: "Back",
+  coordinateNoSharedEvents: "No shared events",
+  coordinateCreateGroup: "Create Group Event",
+  coordinateNoCircles: "Join or create a circle first to compare schedules.",
+
+  // Circle join code
+  circleJoinCode: "Circle code",
+  circleJoinCodeHint: "Anyone with this code can join",
+  circleJoinCodeEdit: "Edit code",
+  circleJoinCodeSave: "Save",
+  circleJoinCodeEmpty: "No code set",
+  circleJoinCodeSet: "Set join code",
+
   // Error states
   errorGeneric: "Something went wrong. Please try again.",
   errorLoadFailed: "Couldn't load data. Pull to refresh or try again later.",

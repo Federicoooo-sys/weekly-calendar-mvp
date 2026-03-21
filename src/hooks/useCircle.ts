@@ -84,6 +84,7 @@ export function useCircle() {
       id: c.id,
       name: c.name,
       ownerId: c.owner_id,
+      joinCode: c.join_code || undefined,
       createdAt: c.created_at,
       members: (allMembers || [])
         .filter((m) => m.circle_id === c.id)
@@ -216,6 +217,25 @@ export function useCircle() {
     [user, loadCircles]
   );
 
+  /** Set or update the persistent join code for a circle (owner only). */
+  const setJoinCode = useCallback(
+    async (circleId: string, code: string): Promise<{ error: string | null }> => {
+      if (!user) return { error: "Not authenticated" };
+
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("circles")
+        .update({ join_code: code.trim() || null })
+        .eq("id", circleId)
+        .eq("owner_id", user.id);
+
+      if (error) return { error: error.message };
+      await loadCircles();
+      return { error: null };
+    },
+    [user, loadCircles]
+  );
+
   return {
     circles,
     loading,
@@ -223,6 +243,7 @@ export function useCircle() {
     createCircle,
     joinCircle,
     generateInvite,
+    setJoinCode,
     leaveCircle,
     deleteCircle,
     reload: loadCircles,

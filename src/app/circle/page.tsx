@@ -18,7 +18,7 @@ export default function CirclePage() {
   const { t } = usePreferences();
   const { user } = useAuth();
   const router = useRouter();
-  const { circles, loading, createCircle, joinCircle, generateInvite, leaveCircle, deleteCircle } = useCircle();
+  const { circles, loading, createCircle, joinCircle, generateInvite, setJoinCode, leaveCircle, deleteCircle } = useCircle();
   const circleIds = useMemo(() => circles.map((c) => c.id), [circles]);
   const { notifications, markAllRead, reload } = useNotifications();
   const { items: feedItems, loading: feedLoading } = useActivityFeed(circleIds);
@@ -40,7 +40,7 @@ export default function CirclePage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [circleName, setCircleName] = useState("");
-  const [joinCode, setJoinCode] = useState("");
+  const [joinCodeInput, setJoinCodeInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,6 +49,16 @@ export default function CirclePage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [confirmLeave, setConfirmLeave] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  // Join code editing state
+  const [editingJoinCode, setEditingJoinCode] = useState<string | null>(null);
+  const [joinCodeDraft, setJoinCodeDraft] = useState("");
+
+  async function handleSaveJoinCode(circleId: string) {
+    const result = await setJoinCode(circleId, joinCodeDraft);
+    if (result.error) setError(result.error);
+    else setEditingJoinCode(null);
+  }
 
   async function handleCreate() {
     if (!circleName.trim()) return;
@@ -64,13 +74,13 @@ export default function CirclePage() {
   }
 
   async function handleJoin() {
-    if (!joinCode.trim()) return;
+    if (!joinCodeInput.trim()) return;
     setSubmitting(true);
     setError(null);
-    const result = await joinCircle(joinCode);
+    const result = await joinCircle(joinCodeInput);
     if (result.error) setError(result.error);
     else {
-      setJoinCode("");
+      setJoinCodeInput("");
       setShowJoin(false);
     }
     setSubmitting(false);
@@ -143,6 +153,40 @@ export default function CirclePage() {
 
       {/* Notifications */}
       <NotificationList notifications={notifications} onMarkAllRead={markAllRead} onNotificationClick={handleNotificationClick} />
+
+      {/* Compare Schedules link — only show when user has circles */}
+      {circles.length > 0 && (
+        <Link
+          href="/circle/coordinate"
+          className="flex items-center justify-between p-3.5 rounded-xl mb-4 transition-colors hover:opacity-90"
+          style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--color-border)" }}
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: "var(--color-bg-tertiary)" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--color-accent)" }}>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium" style={{ color: "var(--color-text-primary)" }}>
+                {t.coordinateTitle}
+              </p>
+              <p className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>
+                {t.coordinateDescription}
+              </p>
+            </div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ color: "var(--color-text-muted)", flexShrink: 0 }}>
+            <polyline points="9,18 15,12 9,6" />
+          </svg>
+        </Link>
+      )}
 
       {/* Error display */}
       {error && (
@@ -243,8 +287,8 @@ export default function CirclePage() {
           </p>
           <input
             type="text"
-            value={joinCode}
-            onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+            value={joinCodeInput}
+            onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
             placeholder={t.circleJoinPlaceholder}
             className="w-full h-11 rounded-lg px-3 text-sm outline-none mb-3 font-mono tracking-wider focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             style={inputStyle}
@@ -260,12 +304,12 @@ export default function CirclePage() {
             </button>
             <button
               onClick={handleJoin}
-              disabled={submitting || !joinCode.trim()}
+              disabled={submitting || !joinCodeInput.trim()}
               className="flex-1 h-10 rounded-lg text-sm font-medium cursor-pointer transition-opacity"
               style={{
                 background: "var(--color-accent)",
                 color: "var(--color-bg-primary)",
-                opacity: submitting || !joinCode.trim() ? 0.5 : 1,
+                opacity: submitting || !joinCodeInput.trim() ? 0.5 : 1,
               }}
             >
               {t.circleJoin}
@@ -371,6 +415,65 @@ export default function CirclePage() {
                   >
                     {copied === circle.id ? t.circleCopied : t.circleInviteTitle}
                   </button>
+                </div>
+              )}
+
+              {/* Persistent join code — owner only */}
+              {isOwner && (
+                <div>
+                  {editingJoinCode === circle.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={joinCodeDraft}
+                        onChange={(e) => setJoinCodeDraft(e.target.value.toUpperCase())}
+                        placeholder="e.g. FAMILY-2026"
+                        maxLength={30}
+                        className="flex-1 h-9 rounded-lg px-3 text-xs font-mono tracking-wider outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                        style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }}
+                        onKeyDown={(e) => e.key === "Enter" && handleSaveJoinCode(circle.id)}
+                      />
+                      <button
+                        onClick={() => handleSaveJoinCode(circle.id)}
+                        className="h-9 px-3 rounded-lg text-xs font-medium cursor-pointer shrink-0"
+                        style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
+                      >
+                        {t.circleJoinCodeSave}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] block" style={{ color: "var(--color-text-muted)" }}>
+                          {t.circleJoinCode}
+                        </span>
+                        {circle.joinCode ? (
+                          <code className="text-xs font-mono tracking-wider" style={{ color: "var(--color-text-primary)" }}>
+                            {circle.joinCode}
+                          </code>
+                        ) : (
+                          <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                            {t.circleJoinCodeEmpty}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setEditingJoinCode(circle.id);
+                          setJoinCodeDraft(circle.joinCode || "");
+                        }}
+                        className="text-[10px] font-medium cursor-pointer"
+                        style={{ color: "var(--color-accent)" }}
+                      >
+                        {circle.joinCode ? t.circleJoinCodeEdit : t.circleJoinCodeSet}
+                      </button>
+                    </div>
+                  )}
+                  {circle.joinCode && (
+                    <p className="text-[10px] mt-1" style={{ color: "var(--color-text-muted)" }}>
+                      {t.circleJoinCodeHint}
+                    </p>
+                  )}
                 </div>
               )}
 
