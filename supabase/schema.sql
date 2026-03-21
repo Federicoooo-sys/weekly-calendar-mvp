@@ -76,6 +76,7 @@ create table if not exists public.events (
   end_time text,    -- "HH:mm" format or null
   category text not null default 'other' check (category in ('work','personal','health','errand','other')),
   status text not null default 'planned' check (status in ('planned','completed','skipped')),
+  visibility text not null default 'private' check (visibility in ('private', 'circle')),
   note text,
   created_at timestamptz not null default now()
 );

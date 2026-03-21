@@ -50,7 +50,15 @@ export function getCurrentWeekStart(): string {
   const offset = jsDay === 0 ? -6 : 1 - jsDay;
   const monday = new Date(now);
   monday.setDate(now.getDate() + offset);
-  return monday.toISOString().split("T")[0];
+  return formatLocalDate(monday);
+}
+
+/** Formats a Date as YYYY-MM-DD using local timezone (not UTC). */
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 /**
