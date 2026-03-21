@@ -63,6 +63,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [titleTouched, setTitleTouched] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"edit" | "comments">(openToThread && isEditing ? "comments" : "edit");
 
   const titleRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
@@ -168,14 +169,13 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-4">
           <h3
             className="text-base font-semibold"
             style={{ color: "var(--color-text-primary)" }}
           >
             {isEditing ? strings.editEvent : strings.addEvent}
           </h3>
-          {/* Close button — 44px touch target via padding, 32px visual */}
           <button
             onClick={onClose}
             className="-mr-2 w-11 h-11 rounded-full flex items-center justify-center cursor-pointer"
@@ -189,7 +189,41 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
           </button>
         </div>
 
-        <div className="space-y-4 md:space-y-4" onKeyDown={handleKeyDown}>
+        {/* Tabs — only show in edit mode */}
+        {isEditing && (
+          <div
+            className="flex gap-1 mb-4 p-0.5 rounded-lg"
+            style={{ background: "var(--color-bg-secondary)" }}
+          >
+            {(["edit", "comments"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="flex-1 py-2 rounded-md text-xs font-medium cursor-pointer transition-colors"
+                style={{
+                  background: activeTab === tab ? "var(--color-surface-elevated)" : "transparent",
+                  color: activeTab === tab ? "var(--color-text-primary)" : "var(--color-text-muted)",
+                  boxShadow: activeTab === tab ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
+                }}
+              >
+                {tab === "edit" ? strings.edit : strings.commentThread}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Comments tab — full-height thread */}
+        {isEditing && event && activeTab === "comments" && (
+          <CommentThread
+            eventId={event.id}
+            eventOwnerId={user?.id}
+            eventTitle={event.title}
+            autoFocus={openToThread}
+          />
+        )}
+
+        {/* Edit tab — form fields */}
+        {activeTab === "edit" && <div className="space-y-4 md:space-y-4" onKeyDown={handleKeyDown}>
           {/* Title */}
           <div>
             <label
@@ -459,16 +493,6 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
             />
           </div>
 
-          {/* Comment thread — edit mode only */}
-          {isEditing && event && (
-            <CommentThread
-              eventId={event.id}
-              eventOwnerId={user?.id}
-              eventTitle={event.title}
-              autoFocus={openToThread}
-            />
-          )}
-
           {/* Participants — only for circle events in edit mode */}
           {showParticipants && !participantsLoading && (
             <div>
@@ -504,10 +528,10 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               )}
             </div>
           )}
-        </div>
+        </div>}
 
-        {/* Actions — layout differs between mobile and desktop */}
-        <div className="mt-6 space-y-2">
+        {/* Actions — only show on edit tab */}
+        {activeTab === "edit" && <div className="mt-6 space-y-2">
           {/* Save + Cancel row — always at the bottom for thumb reach */}
           <div className="flex gap-2">
             <button
@@ -546,7 +570,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               {confirmingDelete ? strings.confirmDelete : strings.delete}
             </button>
           )}
-        </div>
+        </div>}
 
         {/* Invite to event modal */}
         {showInviteModal && event && (

@@ -5,6 +5,7 @@ import { getStrings } from "@/constants/strings";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { formatTimeRange, formatTime } from "@/lib/dates";
 import type { DayInfo, CalendarEvent, DayOfWeek } from "@/types";
+import type { ParticipantAvatar } from "@/hooks/useEventParticipantAvatars";
 
 interface MobileWeekViewProps {
   days: DayInfo[];
@@ -12,6 +13,7 @@ interface MobileWeekViewProps {
   onAddEvent: (dayKey: DayOfWeek) => void;
   onEventClick: (event: CalendarEvent) => void;
   onStatusToggle: (event: CalendarEvent) => void;
+  participantAvatars?: Record<string, ParticipantAvatar[]>;
 }
 
 /** Returns a formatted current time string, e.g. "9:42 AM". */
@@ -22,7 +24,7 @@ function getCurrentTimeLabel(): string {
   return formatTime(`${hh}:${mm}`);
 }
 
-export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventClick, onStatusToggle }: MobileWeekViewProps) {
+export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventClick, onStatusToggle, participantAvatars }: MobileWeekViewProps) {
   const strings = getStrings();
   // Default to today, or Monday if today isn't in the current week
   const todayKey = days.find((d) => d.isToday)?.dayKey ?? days[0].dayKey;
@@ -163,7 +165,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
         <div className="space-y-2">
           {/* Timed events */}
           {timedEvents.map((event) => (
-            <MobileEventCard key={event.id} event={event} onClick={onEventClick} onStatusToggle={onStatusToggle} />
+            <MobileEventCard key={event.id} event={event} onClick={onEventClick} onStatusToggle={onStatusToggle} avatars={participantAvatars?.[event.id]} />
           ))}
 
           {/* Untimed events — separated only when both sections exist */}
@@ -173,7 +175,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
             </div>
           )}
           {untimedEvents.map((event) => (
-            <MobileEventCard key={event.id} event={event} onClick={onEventClick} onStatusToggle={onStatusToggle} />
+            <MobileEventCard key={event.id} event={event} onClick={onEventClick} onStatusToggle={onStatusToggle} avatars={participantAvatars?.[event.id]} />
           ))}
         </div>
       )}
@@ -181,7 +183,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
   );
 }
 
-function MobileEventCard({ event, onClick, onStatusToggle }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void; onStatusToggle: (event: CalendarEvent) => void }) {
+function MobileEventCard({ event, onClick, onStatusToggle, avatars }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void; onStatusToggle: (event: CalendarEvent) => void; avatars?: ParticipantAvatar[] }) {
   const strings = getStrings();
   const isCompleted = event.status === "completed";
   const isSkipped = event.status === "skipped";
@@ -262,6 +264,38 @@ function MobileEventCard({ event, onClick, onStatusToggle }: { event: CalendarEv
           </p>
         )}
       </div>
+
+      {/* Participant avatars — group events */}
+      {avatars && avatars.length > 0 && (
+        <div className="flex -space-x-1 shrink-0 self-center">
+          {avatars.slice(0, 3).map((a) => (
+            <div
+              key={a.userId}
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-semibold"
+              style={{
+                background: "var(--color-accent)",
+                color: "var(--color-bg-primary)",
+                border: "2px solid var(--color-bg-secondary)",
+              }}
+              title={a.displayName}
+            >
+              {(a.displayName || "?")[0].toUpperCase()}
+            </div>
+          ))}
+          {avatars.length > 3 && (
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-medium"
+              style={{
+                background: "var(--color-bg-tertiary)",
+                color: "var(--color-text-muted)",
+                border: "2px solid var(--color-bg-secondary)",
+              }}
+            >
+              +{avatars.length - 3}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

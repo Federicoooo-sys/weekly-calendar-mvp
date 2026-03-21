@@ -8,6 +8,7 @@ import WeekGrid from "./WeekGrid";
 import MobileWeekView from "./MobileWeekView";
 import EventFormModal, { type EventFormData } from "./EventFormModal";
 import { usePreferences } from "@/hooks/usePreferences";
+import { useEventParticipantAvatars, type ParticipantAvatar } from "@/hooks/useEventParticipantAvatars";
 import type { CalendarEvent, DayOfWeek } from "@/types";
 
 /** Modal can be in add mode (just a dayKey) or edit mode (an existing event). */
@@ -54,6 +55,13 @@ export default function WeekView() {
   }, [week.events, weekDays]);
 
   const totalEvents = week.events.length;
+
+  // Load participant avatars for circle events
+  const circleEventIds = useMemo(
+    () => week.events.filter((e) => e.visibility === "circle").map((e) => e.id),
+    [week.events]
+  );
+  const participantAvatars = useEventParticipantAvatars(circleEventIds);
 
   function handleAddEvent(dayKey: DayOfWeek) {
     setModalState({ mode: "add", dayKey });
@@ -173,12 +181,12 @@ export default function WeekView() {
 
       {/* Desktop: time grid calendar */}
       <div className="hidden md:block">
-        <WeekGrid days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} />
+        <WeekGrid days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} participantAvatars={participantAvatars} />
       </div>
 
       {/* Mobile: week strip + day timeline */}
       <div className="md:hidden">
-        <MobileWeekView days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} />
+        <MobileWeekView days={weekDays} eventsByDay={eventsByDay} onAddEvent={handleAddEvent} onEventClick={handleEditEvent} onStatusToggle={handleStatusToggle} participantAvatars={participantAvatars} />
       </div>
 
       {/* Floating add button — bottom-right, above bottom nav on mobile */}

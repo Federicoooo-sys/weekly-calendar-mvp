@@ -6,6 +6,7 @@ import { formatTime } from "@/lib/dates";
 import { categoryConfig } from "@/constants/categories";
 import GridEvent, { SLOT_HEIGHT, layoutEvents } from "./GridEvent";
 import type { DayInfo, DayOfWeek, CalendarEvent } from "@/types";
+import type { ParticipantAvatar } from "@/hooks/useEventParticipantAvatars";
 
 /** Visible hour range for the grid */
 const START_HOUR = 6;
@@ -22,6 +23,7 @@ interface WeekGridProps {
   onAddEvent: (dayKey: DayOfWeek) => void;
   onEventClick: (event: CalendarEvent) => void;
   onStatusToggle: (event: CalendarEvent) => void;
+  participantAvatars?: Record<string, ParticipantAvatar[]>;
 }
 
 /** Returns the pixel offset of the current time from START_HOUR, or null if outside range. */
@@ -34,7 +36,7 @@ function getCurrentTimeOffset(): number | null {
   return ((totalMinutes - startMinutes) / 15) * SLOT_HEIGHT;
 }
 
-export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick, onStatusToggle }: WeekGridProps) {
+export default function WeekGrid({ days, eventsByDay, onAddEvent, onEventClick, onStatusToggle, participantAvatars }: WeekGridProps) {
   const strings = getStrings();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [timeOffset, setTimeOffset] = useState<number | null>(getCurrentTimeOffset);

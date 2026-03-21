@@ -57,9 +57,11 @@ interface NotificationListProps {
   onMarkAllRead: () => void;
   /** Called when a notification is clicked — passes the notification for navigation */
   onNotificationClick?: (notification: Notification) => void;
+  /** Called when accept/decline is clicked on an invite notification */
+  onRespondToInvite?: (participantId: string, response: "accepted" | "declined", notification: Notification) => void;
 }
 
-export default function NotificationList({ notifications, onMarkAllRead, onNotificationClick }: NotificationListProps) {
+export default function NotificationList({ notifications, onMarkAllRead, onNotificationClick, onRespondToInvite }: NotificationListProps) {
   const strings = getStrings();
   const unread = notifications.filter((n) => !n.read);
 
@@ -131,6 +133,25 @@ export default function NotificationList({ notifications, onMarkAllRead, onNotif
               <span className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>
                 {timeAgo(n.createdAt)}
               </span>
+              {/* Accept/Decline buttons for event invites */}
+              {n.type === "event_invite" && onRespondToInvite && n.targetId && (
+                <div className="flex gap-2 mt-1.5">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onRespondToInvite(n.targetId!, "accepted", n); }}
+                    className="text-[10px] font-medium px-2.5 py-1 rounded-md cursor-pointer"
+                    style={{ background: "var(--color-success)", color: "var(--color-bg-primary)" }}
+                  >
+                    {strings.accept}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onRespondToInvite(n.targetId!, "declined", n); }}
+                    className="text-[10px] font-medium px-2.5 py-1 rounded-md cursor-pointer"
+                    style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
+                  >
+                    {strings.decline}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}
