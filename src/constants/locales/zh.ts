@@ -265,6 +265,20 @@ const zh: LocaleStrings = {
   authUpdatePassword: "更新密码",
   authPasswordUpdated: "密码已更新，现在可以登录了。",
 
+  // Invite request modal
+  inviteRequestTitle: "活动邀请",
+  inviteRequestFrom: "来自 {name}",
+  inviteRequestDay: "日期",
+  inviteRequestTime: "时间",
+  inviteRequestNote: "备注",
+  inviteRequestNoTime: "未设定时间",
+  inviteRequestConflict: "日程冲突",
+  inviteRequestConflictWith: "与\"{event}\"时间重叠",
+  inviteRequestNoConflict: "无冲突",
+  inviteRequestAccepted: "已接受！活动已添加到你的日历。",
+  inviteRequestDeclined: "已拒绝邀请。",
+  inviteRequestReadOnly: "共享活动 — 只有组织者可以编辑",
+
   // Error states
   errorGeneric: "出了点问题，请稍后重试。",
   errorLoadFailed: "无法加载数据，请下拉刷新或稍后重试。",

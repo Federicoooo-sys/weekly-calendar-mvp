@@ -263,6 +263,20 @@ const en = {
   authUpdatePassword: "Update password",
   authPasswordUpdated: "Password updated. You can now sign in.",
 
+  // Invite request modal
+  inviteRequestTitle: "Event Invitation",
+  inviteRequestFrom: "From {name}",
+  inviteRequestDay: "Day",
+  inviteRequestTime: "Time",
+  inviteRequestNote: "Note",
+  inviteRequestNoTime: "No set time",
+  inviteRequestConflict: "Schedule conflict",
+  inviteRequestConflictWith: "Overlaps with \"{event}\"",
+  inviteRequestNoConflict: "No conflicts",
+  inviteRequestAccepted: "Accepted! Event added to your calendar.",
+  inviteRequestDeclined: "Invitation declined.",
+  inviteRequestReadOnly: "Shared event — only the organizer can edit",
+
   // Error states
   errorGeneric: "Something went wrong. Please try again.",
   errorLoadFailed: "Couldn't load data. Pull to refresh or try again later.",

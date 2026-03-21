@@ -89,6 +89,8 @@ export function useWeekStorage() {
       setError(null);
       try {
         const supabase = createClient();
+
+        // Load user's own events
         const { data, error: queryError } = await supabase
           .from("events")
           .select("*")
@@ -100,9 +102,60 @@ export function useWeekStorage() {
 
         if (queryError) {
           setError(queryError.message);
-        } else if (data) {
-          const events = data.map(rowToEvent).filter(isValidEvent);
-          setWeek({ weekStart, events });
+          if (!cancelled) setLoading(false);
+          return;
+        }
+
+        const ownEvents = (data || []).map(rowToEvent).filter(isValidEvent);
+
+        // Load accepted invited events (events from others where user is an accepted participant)
+        const { data: participantRows } = await supabase
+          .from("event_participants")
+          .select("event_id")
+          .eq("user_id", user!.id)
+          .eq("status", "accepted");
+
+        if (cancelled) return;
+
+        let invitedEvents: CalendarEvent[] = [];
+        if (participantRows && participantRows.length > 0) {
+          const eventIds = participantRows.map((p) => p.event_id);
+          const { data: invitedRows } = await supabase
+            .from("events")
+            .select("*")
+            .in("id", eventIds)
+            .eq("week_start", weekStart);
+
+          if (cancelled) return;
+
+          if (invitedRows && invitedRows.length > 0) {
+            // Fetch owner display names
+            const ownerIds = [...new Set(invitedRows.map((r) => r.user_id as string))];
+            const { data: profiles } = await supabase
+              .from("profiles")
+              .select("id, display_name")
+              .in("id", ownerIds);
+
+            if (cancelled) return;
+
+            const profileMap = new Map(
+              (profiles || []).map((p) => [p.id, p.display_name || ""])
+            );
+
+            invitedEvents = invitedRows
+              .map((row) => {
+                const event = rowToEvent(row);
+                event.isInvited = true;
+                event.ownerId = row.user_id as string;
+                event.ownerName = profileMap.get(row.user_id as string) || "";
+                return event;
+              })
+              .filter(isValidEvent);
+          }
+        }
+
+        if (!cancelled) {
+          setWeek({ weekStart, events: [...ownEvents, ...invitedEvents] });
         }
       } catch {
         if (!cancelled) setError("Failed to load events. Check your connection.");

@@ -195,7 +195,9 @@ function MobileEventCard({ event, onClick, onStatusToggle, avatars }: { event: C
       className="flex items-start gap-3 rounded-xl px-3.5 py-3 cursor-pointer active:scale-[0.98] transition-transform"
       style={{
         background: "var(--color-bg-secondary)",
-        border: "1px solid var(--color-border)",
+        border: event.isInvited
+          ? `1.5px dashed ${categoryConfig[event.category].colorVar}`
+          : "1px solid var(--color-border)",
         opacity: isDimmed ? 0.65 : 1,
       }}
     >
@@ -252,6 +254,11 @@ function MobileEventCard({ event, onClick, onStatusToggle, avatars }: { event: C
           >
             {event.startTime ? "· " : ""}{strings[CATEGORY_LABEL_KEYS[event.category]]}
           </span>
+          {event.isInvited && event.ownerName && (
+            <span className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>
+              · {event.ownerName}
+            </span>
+          )}
         </div>
 
         {/* Note preview — single line, truncated */}

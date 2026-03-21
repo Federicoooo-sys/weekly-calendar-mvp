@@ -7,14 +7,16 @@ import { useWeekStorage } from "@/hooks/useWeekStorage";
 import WeekGrid from "./WeekGrid";
 import MobileWeekView from "./MobileWeekView";
 import EventFormModal, { type EventFormData } from "./EventFormModal";
+import ReadOnlyEventModal from "./ReadOnlyEventModal";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useEventParticipantAvatars, type ParticipantAvatar } from "@/hooks/useEventParticipantAvatars";
 import type { CalendarEvent, DayOfWeek } from "@/types";
 
-/** Modal can be in add mode (just a dayKey) or edit mode (an existing event). */
+/** Modal can be in add mode (just a dayKey), edit mode (an existing event), or read-only (invited event). */
 type ModalState =
   | { mode: "add"; dayKey: DayOfWeek }
   | { mode: "edit"; event: CalendarEvent; openToThread?: boolean }
+  | { mode: "readonly"; event: CalendarEvent }
   | null;
 
 export default function WeekView() {
@@ -34,7 +36,11 @@ export default function WeekView() {
 
     const event = week.events.find((e) => e.id === eventId);
     if (event) {
-      setModalState({ mode: "edit", event, openToThread: true });
+      if (event.isInvited) {
+        setModalState({ mode: "readonly", event });
+      } else {
+        setModalState({ mode: "edit", event, openToThread: true });
+      }
       // Clear the param so it doesn't re-trigger
       router.replace("/", { scroll: false });
     }
@@ -68,7 +74,11 @@ export default function WeekView() {
   }
 
   function handleEditEvent(event: CalendarEvent) {
-    setModalState({ mode: "edit", event });
+    if (event.isInvited) {
+      setModalState({ mode: "readonly", event });
+    } else {
+      setModalState({ mode: "edit", event });
+    }
   }
 
   function handleSave(data: EventFormData) {
@@ -203,7 +213,7 @@ export default function WeekView() {
       </button>
 
       {/* Add/Edit event modal */}
-      {modalState && (
+      {modalState && modalState.mode !== "readonly" && (
         <EventFormModal
           days={weekDays}
           initialDayKey={modalState.mode === "add" ? modalState.dayKey : modalState.event.dayKey}
@@ -213,6 +223,11 @@ export default function WeekView() {
           onClose={handleCloseModal}
           openToThread={modalState.mode === "edit" ? modalState.openToThread : undefined}
         />
+      )}
+
+      {/* Read-only modal for invited events */}
+      {modalState?.mode === "readonly" && (
+        <ReadOnlyEventModal event={modalState.event} onClose={handleCloseModal} />
       )}
     </div>
   );

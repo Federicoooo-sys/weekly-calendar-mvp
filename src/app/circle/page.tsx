@@ -10,6 +10,7 @@ import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { createClient } from "@/lib/supabase";
 import NotificationList from "@/components/NotificationList";
 import ActivityFeed from "@/components/ActivityFeed";
+import InviteRequestModal from "@/components/InviteRequestModal";
 import Link from "next/link";
 import type { Notification } from "@/types";
 
@@ -22,35 +23,18 @@ export default function CirclePage() {
   const { notifications, markAllRead, reload } = useNotifications();
   const { items: feedItems, loading: feedLoading } = useActivityFeed(circleIds);
 
+  const [inviteEventId, setInviteEventId] = useState<string | null>(null);
+
   function handleNotificationClick(n: Notification) {
+    // Open invite request modal for event invites
+    if (n.targetId && n.type === "event_invite") {
+      setInviteEventId(n.targetId);
+      return;
+    }
     // Navigate to week page with event ID to open thread
     if (n.targetId && (n.type === "comment" || n.type === "reaction" || n.type === "join_request" || n.type === "participant_response")) {
       router.push(`/?event=${n.targetId}`);
     }
-  }
-
-  async function handleRespondToInvite(eventId: string, response: "accepted" | "declined", n: Notification) {
-    if (!user) return;
-    const supabase = createClient();
-
-    // Find the participant record for this user + event
-    const { data: participant } = await supabase
-      .from("event_participants")
-      .select("id")
-      .eq("event_id", eventId)
-      .eq("user_id", user.id)
-      .single();
-
-    if (!participant) return;
-
-    // Update status
-    await supabase
-      .from("event_participants")
-      .update({ status: response, updated_at: new Date().toISOString() })
-      .eq("id", participant.id);
-
-    // Reload notifications to reflect the change
-    reload();
   }
 
   const [showCreate, setShowCreate] = useState(false);
@@ -158,7 +142,7 @@ export default function CirclePage() {
       </h2>
 
       {/* Notifications */}
-      <NotificationList notifications={notifications} onMarkAllRead={markAllRead} onNotificationClick={handleNotificationClick} onRespondToInvite={handleRespondToInvite} />
+      <NotificationList notifications={notifications} onMarkAllRead={markAllRead} onNotificationClick={handleNotificationClick} />
 
       {/* Error display */}
       {error && (
@@ -442,6 +426,15 @@ export default function CirclePage() {
       {/* Activity feed */}
       {circles.length > 0 && (
         <ActivityFeed items={feedItems} loading={feedLoading} />
+      )}
+
+      {/* Invite request modal */}
+      {inviteEventId && (
+        <InviteRequestModal
+          eventId={inviteEventId}
+          onClose={() => setInviteEventId(null)}
+          onResponded={() => reload()}
+        />
       )}
     </div>
   );

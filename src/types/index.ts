@@ -30,6 +30,12 @@ export interface CalendarEvent {
   note?: string;
   /** ISO 8601 timestamp. Set once at creation. */
   createdAt: string;
+  /** True if this event was created by someone else and user is a participant. */
+  isInvited?: boolean;
+  /** The user_id of the event creator. Present on invited events. */
+  ownerId?: string;
+  /** Display name of the event owner. Present on invited events. */
+  ownerName?: string;
 }
 
 export interface Week {

@@ -72,6 +72,7 @@ export default function GridEvent({ event, startHour, columnCount, columnIndex, 
         background: categoryConfig[event.category].colorVar,
         opacity: isDimmed ? 0.5 : 0.85,
         zIndex: 10 + columnIndex,
+        border: event.isInvited ? "2px dashed var(--color-bg-primary)" : "none",
       }}
     >
       <span
