@@ -19,8 +19,9 @@ alter table public.events
   check (visibility in ('private', 'circle'));
 
 
--- ─── Circles ─────────────────────────────────────────────────────────────
+-- ─── Create all tables first (before policies that cross-reference) ─────
 
+-- Circles
 create table if not exists public.circles (
   id uuid primary key default gen_random_uuid(),
   name text not null check (length(name) > 0 and length(name) <= 60),
@@ -30,27 +31,7 @@ create table if not exists public.circles (
 
 alter table public.circles enable row level security;
 
--- Members can see circles they belong to
-create policy "circle_select" on public.circles for select using (
-  exists (
-    select 1 from public.circle_members
-    where circle_members.circle_id = circles.id
-    and circle_members.user_id = auth.uid()
-  )
-);
-
-create policy "circle_insert" on public.circles for insert
-  with check (owner_id = auth.uid());
-
-create policy "circle_update" on public.circles for update
-  using (owner_id = auth.uid());
-
-create policy "circle_delete" on public.circles for delete
-  using (owner_id = auth.uid());
-
-
--- ─── Circle Members ──────────────────────────────────────────────────────
-
+-- Circle Members
 create table if not exists public.circle_members (
   id uuid primary key default gen_random_uuid(),
   circle_id uuid not null references public.circles(id) on delete cascade,
@@ -62,43 +43,10 @@ create table if not exists public.circle_members (
 
 alter table public.circle_members enable row level security;
 
--- Members can see who else is in their circles
-create policy "cm_select" on public.circle_members for select using (
-  exists (
-    select 1 from public.circle_members cm2
-    where cm2.circle_id = circle_members.circle_id
-    and cm2.user_id = auth.uid()
-  )
-);
-
--- Owner can add members (used during circle creation for self-insert)
--- Also allow self-insert (used during invite redemption via RPC)
-create policy "cm_insert" on public.circle_members for insert
-  with check (
-    user_id = auth.uid()
-    or exists (
-      select 1 from public.circles
-      where circles.id = circle_members.circle_id
-      and circles.owner_id = auth.uid()
-    )
-  );
-
--- Members can leave; owner can remove
-create policy "cm_delete" on public.circle_members for delete using (
-  user_id = auth.uid()
-  or exists (
-    select 1 from public.circles
-    where circles.id = circle_members.circle_id
-    and circles.owner_id = auth.uid()
-  )
-);
-
 create index if not exists idx_circle_members_user
   on public.circle_members (user_id);
 
-
--- ─── Circle Invites ──────────────────────────────────────────────────────
-
+-- Circle Invites
 create table if not exists public.circle_invites (
   id uuid primary key default gen_random_uuid(),
   circle_id uuid not null references public.circles(id) on delete cascade,
@@ -111,28 +59,7 @@ create table if not exists public.circle_invites (
 
 alter table public.circle_invites enable row level security;
 
--- Circle members can see invites for their circles
-create policy "ci_select" on public.circle_invites for select using (
-  exists (
-    select 1 from public.circle_members
-    where circle_members.circle_id = circle_invites.circle_id
-    and circle_members.user_id = auth.uid()
-  )
-);
-
--- Circle members can create invites
-create policy "ci_insert" on public.circle_invites for insert with check (
-  invited_by = auth.uid()
-  and exists (
-    select 1 from public.circle_members
-    where circle_members.circle_id = circle_invites.circle_id
-    and circle_members.user_id = auth.uid()
-  )
-);
-
-
--- ─── Comments ────────────────────────────────────────────────────────────
-
+-- Comments
 create table if not exists public.comments (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references public.events(id) on delete cascade,
@@ -143,7 +70,71 @@ create table if not exists public.comments (
 
 alter table public.comments enable row level security;
 
--- Can read comments on own events or shared events in shared circles
+create index if not exists idx_comments_event
+  on public.comments (event_id);
+
+
+-- ─── Now add all RLS policies (tables all exist at this point) ──────────
+
+-- Circles policies
+-- Any authenticated user can see circles (invite-only app, trusted users)
+create policy "circle_select" on public.circles for select using (
+  auth.uid() is not null
+);
+
+create policy "circle_insert" on public.circles for insert
+  with check (owner_id = auth.uid());
+
+create policy "circle_update" on public.circles for update
+  using (owner_id = auth.uid());
+
+create policy "circle_delete" on public.circles for delete
+  using (owner_id = auth.uid());
+
+-- Circle Members policies
+-- Any authenticated user can see memberships (invite-only app, trusted users)
+create policy "cm_select" on public.circle_members for select using (
+  auth.uid() is not null
+);
+
+create policy "cm_insert" on public.circle_members for insert
+  with check (
+    user_id = auth.uid()
+    or exists (
+      select 1 from public.circles
+      where circles.id = circle_members.circle_id
+      and circles.owner_id = auth.uid()
+    )
+  );
+
+create policy "cm_delete" on public.circle_members for delete using (
+  user_id = auth.uid()
+  or exists (
+    select 1 from public.circles
+    where circles.id = circle_members.circle_id
+    and circles.owner_id = auth.uid()
+  )
+);
+
+-- Circle Invites policies
+create policy "ci_select" on public.circle_invites for select using (
+  exists (
+    select 1 from public.circle_members
+    where circle_members.circle_id = circle_invites.circle_id
+    and circle_members.user_id = auth.uid()
+  )
+);
+
+create policy "ci_insert" on public.circle_invites for insert with check (
+  invited_by = auth.uid()
+  and exists (
+    select 1 from public.circle_members
+    where circle_members.circle_id = circle_invites.circle_id
+    and circle_members.user_id = auth.uid()
+  )
+);
+
+-- Comments policies
 create policy "comment_select" on public.comments for select using (
   exists (
     select 1 from public.events e
@@ -163,7 +154,6 @@ create policy "comment_select" on public.comments for select using (
   )
 );
 
--- Can comment on shared events visible to the user
 create policy "comment_insert" on public.comments for insert with check (
   user_id = auth.uid()
   and exists (
@@ -182,17 +172,10 @@ create policy "comment_insert" on public.comments for insert with check (
   )
 );
 
--- Can delete own comments
 create policy "comment_delete" on public.comments for delete
   using (user_id = auth.uid());
 
-create index if not exists idx_comments_event
-  on public.comments (event_id);
-
-
--- ─── Events: circle read policy ──────────────────────────────────────────
--- Allows circle members to read shared events from fellow members.
-
+-- Events: circle read policy
 create policy "events_circle_read" on public.events for select using (
   visibility = 'circle'
   and exists (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getCurrentWeekDays, getCurrentWeekStart, formatWeekRange } from "@/lib/dates";
 import { useWeekStorage } from "@/hooks/useWeekStorage";
 import WeekGrid from "./WeekGrid";
@@ -12,7 +13,7 @@ import type { CalendarEvent, DayOfWeek } from "@/types";
 /** Modal can be in add mode (just a dayKey) or edit mode (an existing event). */
 type ModalState =
   | { mode: "add"; dayKey: DayOfWeek }
-  | { mode: "edit"; event: CalendarEvent }
+  | { mode: "edit"; event: CalendarEvent; openToThread?: boolean }
   | null;
 
 export default function WeekView() {
@@ -20,8 +21,23 @@ export default function WeekView() {
   const { week, loading, error, addEvent, updateEvent, deleteEvent } = useWeekStorage();
   const weekDays = getCurrentWeekDays("mon");
   const weekRange = formatWeekRange(getCurrentWeekStart());
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [modalState, setModalState] = useState<ModalState>(null);
+
+  // Open event from URL param (e.g. ?event=<id> from notification click)
+  useEffect(() => {
+    const eventId = searchParams.get("event");
+    if (!eventId || loading || week.events.length === 0) return;
+
+    const event = week.events.find((e) => e.id === eventId);
+    if (event) {
+      setModalState({ mode: "edit", event, openToThread: true });
+      // Clear the param so it doesn't re-trigger
+      router.replace("/", { scroll: false });
+    }
+  }, [searchParams, week.events, loading, router]);
 
   // Group events by day in a single pass — O(n) instead of O(n*7)
   const eventsByDay = useMemo(() => {
@@ -187,6 +203,7 @@ export default function WeekView() {
           onSave={handleSave}
           onDelete={modalState.mode === "edit" ? handleDelete : undefined}
           onClose={handleCloseModal}
+          openToThread={modalState.mode === "edit" ? modalState.openToThread : undefined}
         />
       )}
     </div>

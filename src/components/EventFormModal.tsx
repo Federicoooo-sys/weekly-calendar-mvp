@@ -9,6 +9,7 @@ import { useCircle } from "@/hooks/useCircle";
 import { useAuth } from "@/hooks/useAuth";
 import ParticipantList from "./ParticipantList";
 import InviteToEventModal from "./InviteToEventModal";
+import CommentThread from "./CommentThread";
 import type { CalendarEvent, DayInfo, DayOfWeek, EventCategory, EventStatus, EventVisibility } from "@/types";
 
 const CATEGORIES: EventCategory[] = ["work", "personal", "health", "errand", "other"];
@@ -43,9 +44,11 @@ interface EventFormModalProps {
   onDelete?: (id: string) => void;
   /** Called when the modal is dismissed */
   onClose: () => void;
+  /** Auto-focus the comment thread (used when opening from a notification) */
+  openToThread?: boolean;
 }
 
-export default function EventFormModal({ days, initialDayKey, event, onSave, onDelete, onClose }: EventFormModalProps) {
+export default function EventFormModal({ days, initialDayKey, event, onSave, onDelete, onClose, openToThread }: EventFormModalProps) {
   const strings = getStrings();
   const isEditing = !!event;
 
@@ -455,6 +458,16 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
               }}
             />
           </div>
+
+          {/* Comment thread — edit mode only */}
+          {isEditing && event && (
+            <CommentThread
+              eventId={event.id}
+              eventOwnerId={user?.id}
+              eventTitle={event.title}
+              autoFocus={openToThread}
+            />
+          )}
 
           {/* Participants — only for circle events in edit mode */}
           {showParticipants && !participantsLoading && (

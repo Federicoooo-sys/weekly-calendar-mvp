@@ -55,9 +55,11 @@ function formatNotification(n: Notification, strings: ReturnType<typeof getStrin
 interface NotificationListProps {
   notifications: Notification[];
   onMarkAllRead: () => void;
+  /** Called when a notification is clicked — passes the notification for navigation */
+  onNotificationClick?: (notification: Notification) => void;
 }
 
-export default function NotificationList({ notifications, onMarkAllRead }: NotificationListProps) {
+export default function NotificationList({ notifications, onMarkAllRead, onNotificationClick }: NotificationListProps) {
   const strings = getStrings();
   const unread = notifications.filter((n) => !n.read);
 
@@ -97,10 +99,13 @@ export default function NotificationList({ notifications, onMarkAllRead }: Notif
         {notifications.slice(0, 8).map((n) => (
           <div
             key={n.id}
-            className="flex items-start gap-2.5 px-4 py-2.5"
+            className={`flex items-start gap-2.5 px-4 py-2.5${onNotificationClick && n.targetId ? " cursor-pointer" : ""}`}
             style={{
               borderTop: "1px solid var(--color-border)",
               background: n.read ? "transparent" : "var(--color-bg-tertiary)",
+            }}
+            onClick={() => {
+              if (onNotificationClick && n.targetId) onNotificationClick(n);
             }}
           >
             {/* Unread dot */}

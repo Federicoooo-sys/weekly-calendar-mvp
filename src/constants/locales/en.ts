@@ -183,6 +183,7 @@ const en = {
   visibilityCircle: "Shared",
 
   // Comments
+  commentThread: "Comments",
   commentPlaceholder: "Leave a comment...",
   commentSend: "Send",
   commentEmpty: "No comments yet",

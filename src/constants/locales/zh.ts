@@ -185,6 +185,7 @@ const zh: LocaleStrings = {
   visibilityCircle: "共享",
 
   // Comments
+  commentThread: "评论",
   commentPlaceholder: "留下评论...",
   commentSend: "发送",
   commentEmpty: "暂无评论",

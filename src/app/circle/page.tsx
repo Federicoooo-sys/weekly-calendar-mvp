@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useCircle } from "@/hooks/useCircle";
 import { useAuth } from "@/hooks/useAuth";
 import { usePreferences } from "@/hooks/usePreferences";
@@ -9,14 +10,23 @@ import { useActivityFeed } from "@/hooks/useActivityFeed";
 import NotificationList from "@/components/NotificationList";
 import ActivityFeed from "@/components/ActivityFeed";
 import Link from "next/link";
+import type { Notification } from "@/types";
 
 export default function CirclePage() {
   const { t } = usePreferences();
   const { user } = useAuth();
+  const router = useRouter();
   const { circles, loading, createCircle, joinCircle, generateInvite, leaveCircle, deleteCircle } = useCircle();
   const circleIds = useMemo(() => circles.map((c) => c.id), [circles]);
   const { notifications, markAllRead } = useNotifications();
   const { items: feedItems, loading: feedLoading } = useActivityFeed(circleIds);
+
+  function handleNotificationClick(n: Notification) {
+    // Navigate to week page with event ID to open thread
+    if (n.targetId && (n.type === "comment" || n.type === "reaction" || n.type === "event_invite" || n.type === "join_request" || n.type === "participant_response")) {
+      router.push(`/?event=${n.targetId}`);
+    }
+  }
 
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
@@ -123,7 +133,7 @@ export default function CirclePage() {
       </h2>
 
       {/* Notifications */}
-      <NotificationList notifications={notifications} onMarkAllRead={markAllRead} />
+      <NotificationList notifications={notifications} onMarkAllRead={markAllRead} onNotificationClick={handleNotificationClick} />
 
       {/* Error display */}
       {error && (
