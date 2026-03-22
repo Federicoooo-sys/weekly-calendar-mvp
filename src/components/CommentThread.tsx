@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useComments } from "@/hooks/useComments";
 import { useAuth } from "@/hooks/useAuth";
 import { getStrings } from "@/constants/strings";
+import { timeAgo } from "@/lib/time";
 
 interface CommentThreadProps {
   eventId: string;
@@ -11,17 +12,6 @@ interface CommentThreadProps {
   eventTitle?: string;
   /** Auto-scroll to bottom on mount (used when opening from notification) */
   autoFocus?: boolean;
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "now";
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  return `${days}d`;
 }
 
 export default function CommentThread({ eventId, eventOwnerId, eventTitle, autoFocus }: CommentThreadProps) {
@@ -106,9 +96,9 @@ export default function CommentThread({ eventId, eventOwnerId, eventTitle, autoF
         }}
       >
         {loading ? (
-          <p className="text-xs px-3 py-3" style={{ color: "var(--color-text-muted)" }}>
-            {strings.authLoading}
-          </p>
+          <div className="flex justify-center py-4">
+            <div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "var(--color-accent)" }} />
+          </div>
         ) : comments.length === 0 ? (
           <p className="text-xs px-3 py-3" style={{ color: "var(--color-text-muted)" }}>
             {strings.commentEmpty}
@@ -122,7 +112,7 @@ export default function CommentThread({ eventId, eventOwnerId, eventTitle, autoF
             >
               {/* Avatar */}
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold shrink-0 mt-0.5"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 mt-0.5"
                 style={{ background: "var(--color-bg-tertiary)", color: "var(--color-text-secondary)" }}
               >
                 {(c.displayName || "?")[0].toUpperCase()}
@@ -179,7 +169,7 @@ export default function CommentThread({ eventId, eventOwnerId, eventTitle, autoF
           style={{
             background: "var(--color-accent)",
             color: "var(--color-bg-primary)",
-            opacity: !text.trim() || sending ? 0.4 : 1,
+            opacity: !text.trim() || sending ? 0.5 : 1,
           }}
         >
           {strings.commentSend}

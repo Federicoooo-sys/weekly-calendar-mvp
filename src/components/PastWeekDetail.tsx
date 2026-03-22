@@ -165,7 +165,7 @@ function ReadOnlyEventRow({ event }: { event: CalendarEvent }) {
       className="flex items-start gap-3 rounded-lg px-3 py-2.5"
       style={{
         background: "var(--color-bg-secondary)",
-        opacity: isDimmed ? 0.7 : 1,
+        opacity: isDimmed ? 0.6 : 1,
       }}
     >
       {/* Status indicator — static, not clickable */}

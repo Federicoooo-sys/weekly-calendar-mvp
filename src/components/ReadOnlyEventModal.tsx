@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { usePreferences } from "@/hooks/usePreferences";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { formatTimeRange } from "@/lib/dates";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import CommentThread from "./CommentThread";
@@ -28,13 +28,7 @@ export default function ReadOnlyEventModal({ event, onClose }: ReadOnlyEventModa
   };
 
   // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   return (
     <div

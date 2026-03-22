@@ -3,6 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNotificationCount } from "@/hooks/useNotifications";
 import { PreferencesProvider } from "@/hooks/usePreferences";
+import { getStrings } from "@/constants/strings";
 import AuthPage from "./AuthPage";
 import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
@@ -13,6 +14,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // Loading state — branded splash
   if (loading) {
+    const strings = getStrings();
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center gap-4"
@@ -26,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           className="text-sm font-medium animate-pulse"
           style={{ color: "var(--color-text-muted)" }}
         >
-          Weekly Planner
+          {strings.appName}
         </p>
       </div>
     );

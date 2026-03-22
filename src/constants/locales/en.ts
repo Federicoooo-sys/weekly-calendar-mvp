@@ -12,11 +12,9 @@ const en = {
 
   // History page
   historyPageTitle: "History",
-  historyComingSoon: "Past week summaries will appear here.",
 
   // Settings page
   settingsPageTitle: "Settings",
-  settingsComingSoon: "Settings will be available once the core planner is complete.",
 
   // Event categories
   categoryWork: "Work",
@@ -106,7 +104,6 @@ const en = {
   historyNoEventsWeek: "No events this week",
 
   // Settings page
-  settingsDescription: "Theme, language, and preferences will live here once the core planner is ready.",
   settingsTheme: "Theme",
   settingsLanguage: "Language",
   settingsThemeLight: "Light",
@@ -121,13 +118,11 @@ const en = {
   settingsTimezone: "Timezone",
   settingsTimezoneSearch: "Search by city...",
   settingsTimezoneDetected: "Auto-detected",
+  settingsAccount: "Account",
 
-  // Circle page (placeholder)
+  // Circle page
   navCircle: "Circle",
-  circlePageTitle: "Your Circle",
-  circleEmptyTitle: "Private accountability",
-  circleEmptyDescription: "Share weekly summaries with family or close friends. See how each other's weeks went — privately, on your terms.",
-  circleComingSoon: "Coming soon",
+  circlePageTitle: "Your Circles",
 
   // Auth
   authSignIn: "Sign in",
@@ -196,11 +191,14 @@ const en = {
   // Notifications
   notificationsTitle: "Notifications",
   notificationComment: "{name} commented on \"{event}\"",
-  notificationReaction: "{name} reacted {emoji} to \"{event}\"",
+  notificationReaction: "{name} reacted to \"{event}\"",
   notificationMemberJoined: "{name} joined {circle}",
   notificationSummaryShared: "{name} shared their week",
+  notificationUnread: "{count} unread",
   notificationMarkAllRead: "Mark all read",
   notificationEmpty: "No notifications yet",
+  notificationToday: "Today",
+  notificationEarlier: "Earlier",
 
   // Reactions
   reactionLabel: "React",
@@ -266,6 +264,7 @@ const en = {
   authNewPassword: "New password",
   authUpdatePassword: "Update password",
   authPasswordUpdated: "Password updated. You can now sign in.",
+  authPasswordHint: "At least 6 characters",
 
   // Invite request modal
   inviteRequestTitle: "Event Invitation",
@@ -281,18 +280,16 @@ const en = {
   inviteRequestDeclined: "Invitation declined.",
   inviteRequestReadOnly: "Shared event — only the organizer can edit",
 
-  // Coordination
-  navCoordinate: "Coordinate",
-  coordinateTitle: "Compare Schedules",
-  coordinateDescription: "See circle members' shared events side by side to find a good time.",
-  coordinateSelectCircle: "Choose a circle",
-  coordinateSelectMembers: "Who to compare",
+  // Schedule comparison
   coordinateSelectMembersHint: "Select up to 4 members",
   coordinateCompare: "Compare",
+  coordinateCompareCount: "Compare ({count})",
   coordinateBack: "Back",
   coordinateNoSharedEvents: "No shared events",
+  coordinateFree: "Free",
+  coordinateBusy: "Busy",
   coordinateCreateGroup: "Create Group Event",
-  coordinateNoCircles: "Join or create a circle first to compare schedules.",
+  coordinatePrivateEvent: "Busy",
 
   // Circle join code
   circleJoinCode: "Circle code",
@@ -302,10 +299,35 @@ const en = {
   circleJoinCodeEmpty: "No code set",
   circleJoinCodeSet: "Set join code",
 
+  // Circle detail tabs
+  circleTabMembers: "Members",
+  circleTabSchedules: "Schedules",
+  circleTabChat: "Chat",
+  circleDetailBack: "Circles",
+  circleManage: "Manage",
+  circleViewWeek: "Week",
+
+  // Chat
+  chatGroupTitle: "Group Chat",
+  chatDirectTitle: "Direct Message",
+  chatPlaceholder: "Type a message...",
+  chatSendError: "Failed to send. Tap to retry.",
+  chatSend: "Send",
+  chatEmpty: "No messages yet",
+  chatGroupEmpty: "Start a conversation with your circle",
+  chatDirectEmpty: "Start a conversation",
+  chatMessageLabel: "Message",
+  chatViewDirect: "Message",
+
+  // Notification — chat
+  notificationChatGroup: "{name} in {circle}",
+  notificationChatDm: "{name}: \"{message}\"",
+
   // Error states
   errorGeneric: "Something went wrong. Please try again.",
   errorLoadFailed: "Couldn't load data. Pull to refresh or try again later.",
   errorOffline: "You appear to be offline.",
+  errorRefresh: "Refresh",
 } as const;
 
 /** Keys are fixed, values are any string — so other locales can provide translations. */

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap } from "@/lib/profiles";
 import { useAuth } from "./useAuth";
 import type { Notification } from "@/types";
 
@@ -54,15 +55,8 @@ export function useNotifications() {
     }
 
     // Fetch actor display names
-    const actorIds = [...new Set(data.map((n) => n.actor_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, display_name")
-      .in("id", actorIds);
-
-    const profileMap = new Map(
-      (profiles || []).map((p) => [p.id, p.display_name || ""])
-    );
+    const actorIds = data.map((n) => n.actor_id);
+    const profileMap = await fetchProfileMap(actorIds);
 
     const mapped: Notification[] = data.map((n) => ({
       id: n.id,
@@ -85,13 +79,15 @@ export function useNotifications() {
   const markAllRead = useCallback(async () => {
     if (!user) return;
     const supabase = createClient();
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ read: true })
       .eq("user_id", user.id)
       .eq("read", false);
 
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (!error) {
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    }
   }, [user]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;

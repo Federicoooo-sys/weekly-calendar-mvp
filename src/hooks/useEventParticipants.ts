@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap } from "@/lib/profiles";
 import { notify } from "@/lib/notify";
 import { useAuth } from "./useAuth";
 import type { EventParticipant } from "@/types";
@@ -50,15 +51,8 @@ export function useEventParticipants(eventId: string | null) {
     }
 
     // Fetch display names
-    const userIds = [...new Set(data.map((r) => r.user_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, display_name")
-      .in("id", userIds);
-
-    const profileMap = new Map(
-      (profiles || []).map((p) => [p.id, p.display_name || ""])
-    );
+    const userIds = data.map((r) => r.user_id);
+    const profileMap = await fetchProfileMap(userIds);
 
     setParticipants(
       data.map((r) => rowToParticipant(r, profileMap.get(r.user_id)))

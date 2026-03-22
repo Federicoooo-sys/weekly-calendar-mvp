@@ -77,7 +77,7 @@ export default function SettingsPage() {
               <button
                 key={opt.value}
                 onClick={() => setTheme(opt.value)}
-                className="flex flex-col items-center gap-2 py-3 rounded-xl cursor-pointer transition-colors"
+                className="flex flex-col items-center gap-2 py-3 rounded-xl cursor-pointer transition-colors active:opacity-80"
                 style={{
                   background: "var(--color-bg-secondary)",
                   border: isSelected
@@ -122,7 +122,7 @@ export default function SettingsPage() {
               <button
                 key={opt.value}
                 onClick={() => setLanguage(opt.value)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-colors active:opacity-80"
                 style={{
                   background: "var(--color-bg-secondary)",
                   border: isSelected
@@ -178,7 +178,7 @@ export default function SettingsPage() {
             value={tzQuery}
             onChange={(e) => setTzQuery(e.target.value)}
             placeholder={t.settingsTimezoneSearch}
-            className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+            className="w-full px-4 py-3 rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             style={{
               background: "var(--color-bg-secondary)",
               border: "1px solid var(--color-border)",
@@ -228,13 +228,15 @@ export default function SettingsPage() {
 
       {/* Account section */}
       <section className="mt-8 pt-6" style={{ borderTop: "1px solid var(--color-border)" }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-sm font-medium" style={{ color: "var(--color-text-primary)" }}>
-              {user?.email}
-            </p>
-          </div>
-        </div>
+        <h3
+          className="text-xs font-semibold uppercase tracking-wide mb-3"
+          style={{ color: "var(--color-text-muted)" }}
+        >
+          {t.settingsAccount}
+        </h3>
+        <p className="text-sm font-medium mb-4" style={{ color: "var(--color-text-primary)" }}>
+          {user?.email}
+        </p>
         <button
           onClick={signOut}
           className="w-full h-10 rounded-lg text-sm font-medium cursor-pointer transition-colors"

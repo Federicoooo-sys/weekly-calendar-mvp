@@ -76,7 +76,7 @@ export default function BottomNav({ unreadCount = 0 }: { unreadCount?: number })
               key={item.href}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
-              className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 text-xs transition-colors"
+              className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 text-xs transition-colors active:opacity-70"
               style={{ color: isActive ? "var(--color-nav-active)" : "var(--color-nav-inactive)" }}
             >
               <span className="relative">
@@ -88,7 +88,7 @@ export default function BottomNav({ unreadCount = 0 }: { unreadCount?: number })
                   />
                 )}
               </span>
-              <span>{item.label}</span>
+              <span className={isActive ? "font-medium" : ""}>{item.label}</span>
             </Link>
           );
         })}

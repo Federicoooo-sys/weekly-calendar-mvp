@@ -66,7 +66,7 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
               className="flex flex-col items-center justify-center rounded-lg py-1.5 px-0 flex-1 min-w-0 transition-colors"
               style={{
                 background: isSelected ? "var(--color-bg-primary)" : "transparent",
-                boxShadow: isSelected ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                boxShadow: isSelected ? "var(--shadow-card)" : "none",
                 opacity: day.isPast && !day.isToday && !isSelected ? 0.5 : 1,
               }}
             >
@@ -151,14 +151,22 @@ export default function MobileWeekView({ days, eventsByDay, onAddEvent, onEventC
       {dayEvents.length === 0 ? (
         <button
           onClick={() => onAddEvent(selectedDay)}
-          className="w-full py-10 text-center cursor-pointer rounded-xl transition-colors active:scale-[0.99]"
-          style={{ background: "var(--color-bg-secondary)" }}
+          className="w-full py-10 text-center cursor-pointer rounded-xl transition-transform active:scale-[0.98]"
+          style={{ background: "var(--color-bg-secondary)", border: "1px solid var(--color-border)" }}
         >
-          <p className="text-sm mb-1" style={{ color: "var(--color-text-muted)" }}>
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2.5"
+            style={{ background: "var(--color-bg-tertiary)" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" style={{ color: "var(--color-text-muted)" }}>
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </div>
+          <p className="text-sm mb-0.5" style={{ color: "var(--color-text-muted)" }}>
             {strings.noEvents}
           </p>
           <p className="text-xs font-medium" style={{ color: "var(--color-accent)" }}>
-            + {strings.addEvent}
+            {strings.addEvent}
           </p>
         </button>
       ) : (
@@ -198,7 +206,7 @@ function MobileEventCard({ event, onClick, onStatusToggle, avatars }: { event: C
         border: event.isInvited
           ? `1.5px dashed ${categoryConfig[event.category].colorVar}`
           : "1px solid var(--color-border)",
-        opacity: isDimmed ? 0.65 : 1,
+        opacity: isDimmed ? 0.6 : 1,
       }}
     >
       {/* Status toggle circle */}
@@ -278,7 +286,7 @@ function MobileEventCard({ event, onClick, onStatusToggle, avatars }: { event: C
           {avatars.slice(0, 3).map((a) => (
             <div
               key={a.userId}
-              className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-semibold"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold"
               style={{
                 background: "var(--color-accent)",
                 color: "var(--color-bg-primary)",
@@ -291,7 +299,7 @@ function MobileEventCard({ event, onClick, onStatusToggle, avatars }: { event: C
           ))}
           {avatars.length > 3 && (
             <div
-              className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-medium"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium"
               style={{
                 background: "var(--color-bg-tertiary)",
                 color: "var(--color-text-muted)",

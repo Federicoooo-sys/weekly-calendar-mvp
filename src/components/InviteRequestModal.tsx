@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { usePreferences } from "@/hooks/usePreferences";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { createClient } from "@/lib/supabase";
+import { fetchDisplayName } from "@/lib/profiles";
 import { useAuth } from "@/hooks/useAuth";
-import { formatTimeRange } from "@/lib/dates";
+import { formatTimeRange, getCurrentWeekStart } from "@/lib/dates";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
-import { getCurrentWeekStart } from "@/lib/dates";
 import type { CalendarEvent, DayOfWeek, EventCategory, EventVisibility } from "@/types";
 
 interface EventDetails {
@@ -77,11 +78,7 @@ export default function InviteRequestModal({ eventId, onClose, onResponded }: In
       }
 
       // Fetch owner profile
-      const { data: ownerProfile } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", eventRow.user_id)
-        .single();
+      const ownerName = await fetchDisplayName(eventRow.user_id);
 
       const details: EventDetails = {
         id: eventRow.id,
@@ -92,7 +89,7 @@ export default function InviteRequestModal({ eventId, onClose, onResponded }: In
         category: eventRow.category as EventCategory,
         note: eventRow.note || undefined,
         visibility: (eventRow.visibility as EventVisibility) || "private",
-        ownerName: ownerProfile?.display_name || "Someone",
+        ownerName: ownerName || "Someone",
       };
 
       if (cancelled) return;
@@ -164,13 +161,7 @@ export default function InviteRequestModal({ eventId, onClose, onResponded }: In
   }
 
   // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   const DAY_LABELS: Record<DayOfWeek, string> = {
     mon: t.dayMonShort,

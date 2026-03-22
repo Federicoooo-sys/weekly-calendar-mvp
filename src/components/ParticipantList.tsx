@@ -62,7 +62,7 @@ export default function ParticipantList({
             >
               {/* Avatar */}
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold shrink-0"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0"
                 style={{
                   background: p.status === "accepted" ? "var(--color-accent)" : "var(--color-bg-tertiary)",
                   color: p.status === "accepted" ? "var(--color-bg-primary)" : "var(--color-text-secondary)",

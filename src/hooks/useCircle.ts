@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap } from "@/lib/profiles";
 import { useAuth } from "./useAuth";
 import type { CircleWithMembers } from "@/types";
 
@@ -69,15 +70,8 @@ export function useCircle() {
       .in("circle_id", circleIds);
 
     // 4. Get profiles for all unique users
-    const userIds = [...new Set((allMembers || []).map((m) => m.user_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, display_name")
-      .in("id", userIds);
-
-    const profileMap = new Map(
-      (profiles || []).map((p) => [p.id, p.display_name || ""])
-    );
+    const userIds = (allMembers || []).map((m) => m.user_id);
+    const profileMap = await fetchProfileMap(userIds);
 
     // 5. Assemble CircleWithMembers
     const result: CircleWithMembers[] = circlesData.map((c) => ({

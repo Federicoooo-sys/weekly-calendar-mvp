@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap, fetchDisplayName } from "@/lib/profiles";
 import { notify } from "@/lib/notify";
 import { useAuth } from "./useAuth";
 import type { Comment } from "@/types";
@@ -37,15 +38,8 @@ export function useComments(
     }
 
     // Fetch display names for comment authors
-    const userIds = [...new Set(commentsData.map((c) => c.user_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, display_name")
-      .in("id", userIds);
-
-    const profileMap = new Map(
-      (profiles || []).map((p) => [p.id, p.display_name || ""])
-    );
+    const userIds = commentsData.map((c) => c.user_id);
+    const profileMap = await fetchProfileMap(userIds);
 
     const mapped: Comment[] = commentsData.map((c) => ({
       id: c.id,
@@ -83,12 +77,7 @@ export function useComments(
       if (error) return { error: error.message };
 
       if (data) {
-        // Get current user's display name from profiles
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("display_name")
-          .eq("id", user.id)
-          .single();
+        const displayName = await fetchDisplayName(user.id);
 
         const newComment: Comment = {
           id: data.id,
@@ -96,7 +85,7 @@ export function useComments(
           userId: data.user_id,
           content: data.content,
           createdAt: data.created_at,
-          displayName: profile?.display_name || "",
+          displayName,
         };
         setComments((prev) => [...prev, newComment]);
       }

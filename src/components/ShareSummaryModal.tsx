@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getStrings } from "@/constants/strings";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { formatWeekRange } from "@/lib/dates";
 import type { WeekSummary } from "@/lib/history";
 import type { CircleWithMembers } from "@/types";
@@ -41,13 +42,7 @@ export default function ShareSummaryModal({
   }, [availableCircles, selectedCircleId]);
 
   // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   async function handleShare() {
     if (!selectedCircleId || submitting) return;
@@ -110,7 +105,7 @@ export default function ShareSummaryModal({
             {weekRange}
           </p>
           <div className="flex items-center gap-3 text-xs" style={{ color: "var(--color-text-muted)" }}>
-            <span>{summary.total} events</span>
+            <span>{strings.historySummaryTotal.replace("{count}", String(summary.total))}</span>
             {summary.completed > 0 && (
               <span style={{ color: "var(--color-success)" }}>{summary.completed} ✓</span>
             )}

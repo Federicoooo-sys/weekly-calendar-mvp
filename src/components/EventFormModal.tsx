@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { getStrings } from "@/constants/strings";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { getTimeSlots } from "@/lib/dates";
 import { useEventParticipants } from "@/hooks/useEventParticipants";
@@ -99,14 +100,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
     return () => clearTimeout(timer);
   }, []);
 
-  // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   // Validation
   const titleValid = title.trim().length > 0;
@@ -203,7 +197,7 @@ export default function EventFormModal({ days, initialDayKey, event, onSave, onD
                 style={{
                   background: activeTab === tab ? "var(--color-surface-elevated)" : "transparent",
                   color: activeTab === tab ? "var(--color-text-primary)" : "var(--color-text-muted)",
-                  boxShadow: activeTab === tab ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
+                  boxShadow: activeTab === tab ? "var(--shadow-card)" : "none",
                 }}
               >
                 {tab === "edit" ? strings.edit : strings.commentThread}

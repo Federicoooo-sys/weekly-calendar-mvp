@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getStrings } from "@/constants/strings";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { EventParticipant } from "@/types";
 
 interface InviteMember {
@@ -31,13 +32,7 @@ export default function InviteToEventModal({
   const [sent, setSent] = useState<Set<string>>(new Set());
 
   // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   async function handleInvite(userId: string) {
     if (sending) return;

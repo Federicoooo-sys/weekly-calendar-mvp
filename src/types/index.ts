@@ -86,10 +86,9 @@ export interface UserPreferences {
   timezone: string;
 }
 
-// ─── Social architecture (future-facing) ───────────────────────────────
+// ─── Social / Circle architecture ────────────────────────────────────────
 //
-// These types prepare for private accountability/sharing features.
-// They are not consumed by any UI or storage logic yet.
+// Types for private accountability, sharing, and circle features.
 // Design assumptions:
 //   - Private by default. Nothing is shared unless the user explicitly opts in.
 //   - Small circles (family, close friends) — not public social.
@@ -184,6 +183,19 @@ export interface CircleInvite {
   createdAt: string;
 }
 
+/** A chat message within a circle. */
+export interface ChatMessage {
+  id: string;
+  circleId: string;
+  senderId: string;
+  /** null = group chat, "uuid1_uuid2" (sorted) = DM */
+  dmPair: string | null;
+  content: string;
+  createdAt: string;
+  /** Joined from profiles */
+  senderName?: string;
+}
+
 /** A comment on a shared event. */
 export interface Comment {
   id: string;
@@ -237,7 +249,7 @@ export interface EventParticipant {
 }
 
 /** An in-app notification. */
-export type NotificationType = "comment" | "reaction" | "member_joined" | "summary_shared" | "event_invite" | "join_request" | "participant_response";
+export type NotificationType = "comment" | "reaction" | "member_joined" | "summary_shared" | "event_invite" | "join_request" | "participant_response" | "chat_group" | "chat_dm";
 export interface Notification {
   id: string;
   userId: string;

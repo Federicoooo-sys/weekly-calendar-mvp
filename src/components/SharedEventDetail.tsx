@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { getStrings } from "@/constants/strings";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { categoryConfig, CATEGORY_LABEL_KEYS } from "@/constants/categories";
 import { useComments } from "@/hooks/useComments";
 import { useEventParticipants } from "@/hooks/useEventParticipants";
@@ -51,13 +52,7 @@ export default function SharedEventDetail({ event, eventOwnerId, eligibleMembers
   const isOwner = user?.id === eventOwnerId;
 
   // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   // Scroll to bottom when comments change
   useEffect(() => {
@@ -218,7 +213,7 @@ export default function SharedEventDetail({ event, eventOwnerId, eligibleMembers
         )}
 
         {/* Separator */}
-        <div className="mb-3" style={{ borderTop: "1px solid var(--color-border)" }} />
+        <div className="my-3" style={{ borderTop: "1px solid var(--color-border)" }} />
 
         {/* Invite modal */}
         {showInvite && eligibleMembers && (
@@ -235,7 +230,7 @@ export default function SharedEventDetail({ event, eventOwnerId, eligibleMembers
         <div className="flex-1 overflow-y-auto min-h-0 mb-3">
           {commentsLoading ? (
             <div className="flex justify-center py-6">
-              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--color-accent)" }} />
+              <div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "var(--color-accent)" }} />
             </div>
           ) : comments.length === 0 ? (
             <p className="text-xs text-center py-6" style={{ color: "var(--color-text-muted)" }}>

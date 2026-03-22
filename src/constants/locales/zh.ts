@@ -14,11 +14,9 @@ const zh: LocaleStrings = {
 
   // History page
   historyPageTitle: "历史",
-  historyComingSoon: "过往周记录将在此显示。",
 
   // Settings page
   settingsPageTitle: "设置",
-  settingsComingSoon: "核心计划功能完成后，设置将可用。",
 
   // Event categories
   categoryWork: "工作",
@@ -108,7 +106,6 @@ const zh: LocaleStrings = {
   historyNoEventsWeek: "本周无事件",
 
   // Settings page
-  settingsDescription: "主题、语言和偏好设置将在核心计划功能完成后在此提供。",
   settingsTheme: "主题",
   settingsLanguage: "语言",
   settingsThemeLight: "浅色",
@@ -122,14 +119,12 @@ const zh: LocaleStrings = {
   settingsAppearance: "外观",
   settingsTimezone: "时区",
   settingsTimezoneSearch: "搜索城市...",
+  settingsAccount: "账户",
   settingsTimezoneDetected: "自动检测",
 
-  // Circle page (placeholder)
+  // Circle page
   navCircle: "圈子",
   circlePageTitle: "你的圈子",
-  circleEmptyTitle: "私密互助",
-  circleEmptyDescription: "与家人或好友分享每周总结，了解彼此的一周 — 私密、自主。",
-  circleComingSoon: "即将推出",
 
   // Auth
   authSignIn: "登录",
@@ -198,11 +193,14 @@ const zh: LocaleStrings = {
   // Notifications
   notificationsTitle: "通知",
   notificationComment: "{name}评论了\"{event}\"",
-  notificationReaction: "{name}对\"{event}\"做出了{emoji}反应",
+  notificationReaction: "{name}对\"{event}\"做出了反应",
   notificationMemberJoined: "{name}加入了{circle}",
   notificationSummaryShared: "{name}分享了他们的一周",
+  notificationUnread: "{count} 条未读",
   notificationMarkAllRead: "全部标为已读",
   notificationEmpty: "暂无通知",
+  notificationToday: "今天",
+  notificationEarlier: "更早",
 
   // Reactions
   reactionLabel: "反应",
@@ -268,6 +266,7 @@ const zh: LocaleStrings = {
   authNewPassword: "新密码",
   authUpdatePassword: "更新密码",
   authPasswordUpdated: "密码已更新，现在可以登录了。",
+  authPasswordHint: "至少6个字符",
 
   // Invite request modal
   inviteRequestTitle: "活动邀请",
@@ -283,18 +282,16 @@ const zh: LocaleStrings = {
   inviteRequestDeclined: "已拒绝邀请。",
   inviteRequestReadOnly: "共享活动 — 只有组织者可以编辑",
 
-  // Coordination
-  navCoordinate: "协调",
-  coordinateTitle: "比较日程",
-  coordinateDescription: "并排查看圈子成员的共享事件，找到合适的时间。",
-  coordinateSelectCircle: "选择圈子",
-  coordinateSelectMembers: "选择成员",
+  // Schedule comparison
   coordinateSelectMembersHint: "最多选择4位成员",
   coordinateCompare: "比较",
+  coordinateCompareCount: "比较 ({count})",
   coordinateBack: "返回",
   coordinateNoSharedEvents: "没有共享事件",
+  coordinateFree: "空闲",
+  coordinateBusy: "忙碌",
   coordinateCreateGroup: "创建群组活动",
-  coordinateNoCircles: "先加入或创建一个圈子才能比较日程。",
+  coordinatePrivateEvent: "忙碌",
 
   // Circle join code
   circleJoinCode: "圈子代码",
@@ -304,10 +301,35 @@ const zh: LocaleStrings = {
   circleJoinCodeEmpty: "未设置代码",
   circleJoinCodeSet: "设置加入代码",
 
+  // Circle detail tabs
+  circleTabMembers: "成员",
+  circleTabSchedules: "日程",
+  circleTabChat: "聊天",
+  circleDetailBack: "圈子",
+  circleManage: "管理",
+  circleViewWeek: "本周",
+
+  // Chat
+  chatGroupTitle: "群聊",
+  chatDirectTitle: "私信",
+  chatPlaceholder: "输入消息...",
+  chatSendError: "发送失败，点击重试。",
+  chatSend: "发送",
+  chatEmpty: "暂无消息",
+  chatGroupEmpty: "和你的圈子开始对话吧",
+  chatDirectEmpty: "开始对话",
+  chatMessageLabel: "消息",
+  chatViewDirect: "私信",
+
+  // Notification — chat
+  notificationChatGroup: "{name}在{circle}",
+  notificationChatDm: "{name}：\"{message}\"",
+
   // Error states
   errorGeneric: "出了点问题，请稍后重试。",
   errorLoadFailed: "无法加载数据，请下拉刷新或稍后重试。",
   errorOffline: "似乎处于离线状态。",
+  errorRefresh: "刷新",
 };
 
 export default zh;

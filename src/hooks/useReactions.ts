@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap, fetchDisplayName } from "@/lib/profiles";
 import { notify } from "@/lib/notify";
 import { useAuth } from "./useAuth";
 import type { Reaction, ReactionEmoji } from "@/types";
@@ -36,15 +37,8 @@ export function useReactions(
 
     if (data) {
       // Fetch display names
-      const userIds = [...new Set(data.map((r) => r.user_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .in("id", userIds);
-
-      const profileMap = new Map(
-        (profiles || []).map((p) => [p.id, p.display_name || ""])
-      );
+      const userIds = data.map((r) => r.user_id);
+      const profileMap = await fetchProfileMap(userIds);
 
       setReactions(
         data.map((r) => ({
@@ -89,11 +83,7 @@ export function useReactions(
           .single();
 
         if (data) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("display_name")
-            .eq("id", user.id)
-            .single();
+          const displayName = await fetchDisplayName(user.id);
 
           setReactions((prev) => [
             ...prev,
@@ -103,7 +93,7 @@ export function useReactions(
               userId: data.user_id,
               emoji: data.emoji as ReactionEmoji,
               createdAt: data.created_at,
-              displayName: profile?.display_name || "",
+              displayName,
             },
           ]);
 

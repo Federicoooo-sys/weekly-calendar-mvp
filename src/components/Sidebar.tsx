@@ -44,7 +44,7 @@ export default function Sidebar({ unreadCount = 0 }: { unreadCount?: number }) {
                 key={item.href}
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                className="block px-3 py-2 rounded-md text-sm font-medium transition-colors hover:opacity-80"
+                className="block px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 style={{
                   color: isActive ? "var(--color-accent)" : "var(--color-text-secondary)",
                   background: isActive ? "var(--color-bg-tertiary)" : "transparent",

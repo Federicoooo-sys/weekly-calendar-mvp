@@ -128,8 +128,8 @@ export default function WeekView() {
       {/* Error banner */}
       {error && (
         <div
-          className="mb-4 px-3 py-2 rounded-lg text-sm"
-          style={{ background: "var(--color-bg-tertiary)", color: "var(--color-danger)" }}
+          className="mb-4 px-3 py-2 rounded-lg text-xs"
+          style={{ background: "var(--color-bg-secondary)", color: "var(--color-danger)", borderLeft: "3px solid var(--color-danger)" }}
         >
           {t.errorLoadFailed}
         </div>
@@ -202,8 +202,8 @@ export default function WeekView() {
       {/* Floating add button — bottom-right, above bottom nav on mobile */}
       <button
         onClick={() => handleAddEvent(todayKey)}
-        className="fixed right-5 bottom-20 md:bottom-6 z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-transform active:scale-90 hover:scale-105"
-        style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)" }}
+        className="fixed right-5 bottom-20 md:bottom-6 z-40 w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-transform active:scale-90 hover:scale-105"
+        style={{ background: "var(--color-accent)", color: "var(--color-bg-primary)", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)" }}
         aria-label={t.addEvent}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

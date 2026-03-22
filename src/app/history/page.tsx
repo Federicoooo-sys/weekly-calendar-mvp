@@ -58,10 +58,8 @@ export default function HistoryPage() {
   return (
     <PageShell title={strings.historyPageTitle}>
       {loading ? (
-        <div className="mt-8 text-center">
-          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
-            {strings.authLoading}
-          </p>
+        <div className="flex justify-center py-12">
+          <div className="w-3 h-3 rounded-full animate-pulse" style={{ background: "var(--color-accent)" }} />
         </div>
       ) : pastWeeks.length === 0 ? (
         <EmptyState />

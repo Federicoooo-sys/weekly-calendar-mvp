@@ -91,15 +91,15 @@ export default function GridEvent({ event, startHour, columnCount, columnIndex, 
       )}
       {isTall && (
         <span
-          className="text-[9px] leading-tight block truncate mt-0.5"
-          style={{ color: "var(--color-bg-primary)", opacity: 0.65 }}
+          className="text-[10px] leading-tight block truncate mt-0.5"
+          style={{ color: "var(--color-bg-primary)", opacity: 0.6 }}
         >
           {strings[CATEGORY_LABEL_KEYS[event.category]]}
         </span>
       )}
       {isTall && event.note && (
         <span
-          className="text-[9px] leading-tight block truncate mt-0.5"
+          className="text-[10px] leading-tight block truncate mt-0.5"
           style={{ color: "var(--color-bg-primary)", opacity: 0.5 }}
         >
           {event.note}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, type ReactNode } from "react";
+import { getStrings } from "@/constants/strings";
 
 interface Props {
   children: ReactNode;
@@ -22,6 +23,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const strings = getStrings();
       return (
         <div
           className="min-h-screen flex items-center justify-center px-4"
@@ -52,13 +54,13 @@ export default class ErrorBoundary extends Component<Props, State> {
               className="text-lg font-semibold mb-2"
               style={{ color: "var(--color-text-primary)" }}
             >
-              Something went wrong
+              {strings.errorGeneric}
             </h1>
             <p
               className="text-sm mb-6"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              The app ran into a problem. Try refreshing the page.
+              {strings.errorLoadFailed}
             </p>
             <button
               onClick={() => window.location.reload()}
@@ -68,7 +70,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 color: "var(--color-bg-primary)",
               }}
             >
-              Refresh
+              {strings.errorRefresh}
             </button>
           </div>
         </div>

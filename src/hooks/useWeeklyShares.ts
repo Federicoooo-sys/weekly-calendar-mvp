@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap } from "@/lib/profiles";
 import { notifyMany } from "@/lib/notify";
 import { useAuth } from "./useAuth";
 import type { SharedWeeklySummary } from "@/types";
@@ -34,15 +35,8 @@ export function useWeeklyShares(circleIds: string[]) {
     }
 
     // Fetch display names
-    const userIds = [...new Set(data.map((s) => s.user_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, display_name")
-      .in("id", userIds);
-
-    const profileMap = new Map(
-      (profiles || []).map((p) => [p.id, p.display_name || ""])
-    );
+    const userIds = data.map((s) => s.user_id);
+    const profileMap = await fetchProfileMap(userIds);
 
     setShares(
       data.map((s) => ({

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
+import { fetchProfileMap } from "@/lib/profiles";
 import { useAuth } from "./useAuth";
 
 export interface ParticipantAvatar {
@@ -42,17 +43,10 @@ export function useEventParticipantAvatars(eventIds: string[]) {
       }
 
       // Get display names
-      const userIds = [...new Set(participants.map((p) => p.user_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .in("id", userIds);
+      const userIds = participants.map((p) => p.user_id);
+      const profileMap = await fetchProfileMap(userIds);
 
       if (cancelled) return;
-
-      const profileMap = new Map(
-        (profiles || []).map((p) => [p.id, p.display_name || ""])
-      );
 
       // Group by event
       const map: Record<string, ParticipantAvatar[]> = {};

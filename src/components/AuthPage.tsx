@@ -259,6 +259,11 @@ export default function AuthPage() {
                 minLength={6}
                 required
               />
+              {mode === "signup" && (
+                <p className="text-[10px] mt-1 px-1" style={{ color: "var(--color-text-muted)" }}>
+                  {t.authPasswordHint}
+                </p>
+              )}
             </div>
           )}
 
@@ -321,7 +326,7 @@ export default function AuthPage() {
             style={{
               background: "var(--color-accent)",
               color: "var(--color-bg-primary)",
-              opacity: submitting ? 0.6 : 1,
+              opacity: submitting ? 0.5 : 1,
             }}
           >
             {submitting
