@@ -36,46 +36,56 @@ export function useChat({ circleId, dmUserId, circleName, memberIds }: UseChatOp
       return;
     }
 
-    const supabase = createClient();
-    let query = supabase
-      .from("chat_messages")
-      .select("*")
-      .eq("circle_id", circleId)
-      .order("created_at", { ascending: true })
-      .limit(100);
+    try {
+      const supabase = createClient();
+      let query = supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("circle_id", circleId)
+        .order("created_at", { ascending: true })
+        .limit(100);
 
-    if (dmPair) {
-      query = query.eq("dm_pair", dmPair);
-    } else {
-      query = query.is("dm_pair", null);
-    }
+      if (dmPair) {
+        query = query.eq("dm_pair", dmPair);
+      } else {
+        query = query.is("dm_pair", null);
+      }
 
-    const { data } = await query;
+      const { data, error } = await query;
 
-    if (!data || data.length === 0) {
-      setMessages([]);
+      if (error) {
+        console.error("Chat load error:", error.message);
+        setMessages([]);
+        setLoading(false);
+        loadedRef.current = true;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setMessages([]);
+        setLoading(false);
+        loadedRef.current = true;
+        return;
+      }
+
+      const senderIds = data.map((m) => m.sender_id);
+      const profileMap = await fetchProfileMap(senderIds);
+
+      const mapped: ChatMessage[] = data.map((m) => ({
+        id: m.id,
+        circleId: m.circle_id,
+        senderId: m.sender_id,
+        dmPair: m.dm_pair || null,
+        content: m.content,
+        createdAt: m.created_at,
+        senderName: profileMap.get(m.sender_id) || "",
+      }));
+
+      setMessages(mapped);
+    } finally {
       setLoading(false);
       loadedRef.current = true;
-      return;
     }
-
-    // Fetch sender display names
-    const senderIds = data.map((m) => m.sender_id);
-    const profileMap = await fetchProfileMap(senderIds);
-
-    const mapped: ChatMessage[] = data.map((m) => ({
-      id: m.id,
-      circleId: m.circle_id,
-      senderId: m.sender_id,
-      dmPair: m.dm_pair || null,
-      content: m.content,
-      createdAt: m.created_at,
-      senderName: profileMap.get(m.sender_id) || "",
-    }));
-
-    setMessages(mapped);
-    setLoading(false);
-    loadedRef.current = true;
   }, [user, circleId, dmPair]);
 
   useEffect(() => {
@@ -85,63 +95,64 @@ export function useChat({ circleId, dmUserId, circleName, memberIds }: UseChatOp
 
   const send = useCallback(
     async (content: string): Promise<{ error: string | null }> => {
-      if (!user || !circleId) return { error: "Not authenticated" };
-      const trimmed = content.trim();
-      if (!trimmed) return { error: null };
+      try {
+        if (!user || !circleId) return { error: "Not authenticated" };
+        const trimmed = content.trim();
+        if (!trimmed) return { error: null };
 
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("chat_messages")
-        .insert({
-          circle_id: circleId,
-          sender_id: user.id,
-          dm_pair: dmPair,
-          content: trimmed,
-        })
-        .select()
-        .single();
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("chat_messages")
+          .insert({
+            circle_id: circleId,
+            sender_id: user.id,
+            dm_pair: dmPair,
+            content: trimmed,
+          })
+          .select()
+          .single();
 
-      if (error) return { error: error.message };
+        if (error) return { error: error.message };
 
-      // Optimistically add to local state
-      if (data) {
-        // Get sender name from existing messages or profile
-        const existingSender = messages.find((m) => m.senderId === user.id);
-        const newMsg: ChatMessage = {
-          id: data.id,
-          circleId: data.circle_id,
-          senderId: data.sender_id,
-          dmPair: data.dm_pair || null,
-          content: data.content,
-          createdAt: data.created_at,
-          senderName: existingSender?.senderName || "",
-        };
-        setMessages((prev) => [...prev, newMsg]);
+        // Optimistically add to local state
+        if (data) {
+          const existingSender = messages.find((m) => m.senderId === user.id);
+          const newMsg: ChatMessage = {
+            id: data.id,
+            circleId: data.circle_id,
+            senderId: data.sender_id,
+            dmPair: data.dm_pair || null,
+            content: data.content,
+            createdAt: data.created_at,
+            senderName: existingSender?.senderName || "",
+          };
+          setMessages((prev) => [...prev, newMsg]);
+        }
+
+        // Send notifications (fire-and-forget — don't block on failure)
+        const preview = trimmed.length > 40 ? trimmed.slice(0, 40) + "..." : trimmed;
+        if (dmPair && dmUserId) {
+          notify({
+            userId: dmUserId,
+            actorId: user.id,
+            type: "chat_dm",
+            targetId: circleId,
+            targetLabel: preview,
+          }).catch(() => {});
+        } else if (memberIds && memberIds.length > 0) {
+          notifyMany({
+            userIds: memberIds,
+            actorId: user.id,
+            type: "chat_group",
+            targetId: circleId,
+            targetLabel: circleName || preview,
+          }).catch(() => {});
+        }
+
+        return { error: null };
+      } catch (e) {
+        return { error: e instanceof Error ? e.message : "Send failed" };
       }
-
-      // Send notifications
-      const preview = trimmed.length > 40 ? trimmed.slice(0, 40) + "..." : trimmed;
-      if (dmPair && dmUserId) {
-        // DM notification
-        await notify({
-          userId: dmUserId,
-          actorId: user.id,
-          type: "chat_dm",
-          targetId: circleId,
-          targetLabel: preview,
-        });
-      } else if (memberIds && memberIds.length > 0) {
-        // Group chat notification
-        await notifyMany({
-          userIds: memberIds,
-          actorId: user.id,
-          type: "chat_group",
-          targetId: circleId,
-          targetLabel: circleName || preview,
-        });
-      }
-
-      return { error: null };
     },
     [user, circleId, dmPair, dmUserId, memberIds, circleName, messages],
   );
