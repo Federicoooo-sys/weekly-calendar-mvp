@@ -117,6 +117,9 @@ const en = {
   settingsLanguageEn: "English",
   settingsLanguageZh: "简体中文",
   settingsAppearance: "Appearance",
+  settingsTimezone: "Timezone",
+  settingsTimezoneSearch: "Search by city...",
+  settingsTimezoneDetected: "Auto-detected",
 
   // Circle page (placeholder)
   navCircle: "Circle",

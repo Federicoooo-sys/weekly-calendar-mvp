@@ -82,6 +82,8 @@ export interface UserPreferences {
   theme: "light" | "dark" | "blue" | "lavender" | "mist" | "cosmic";
   /** Active language. Only "en" is implemented on Day 1. */
   language: "en" | "zh";
+  /** IANA timezone ID, e.g. "America/New_York". Auto-detected from browser on first login. */
+  timezone: string;
 }
 
 // ─── Social architecture (future-facing) ───────────────────────────────

@@ -144,4 +144,5 @@ export const defaultPreferences: UserPreferences = {
   weekStartDay: "mon",
   theme: "light",
   language: "en",
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
 };

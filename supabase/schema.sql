@@ -112,6 +112,7 @@ create table if not exists public.user_preferences (
   theme text not null default 'light',
   language text not null default 'en',
   week_start_day text not null default 'mon',
+  timezone text,
   updated_at timestamptz not null default now()
 );
 

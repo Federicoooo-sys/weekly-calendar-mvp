@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useAuth } from "@/hooks/useAuth";
+import { searchTimezones, formatTimezoneDisplay, type TimezoneOption } from "@/lib/timezone";
 import type { SupportedLocale } from "@/constants/strings";
 
 type Theme = "light" | "dark" | "blue" | "lavender" | "mist" | "cosmic";
@@ -21,8 +23,35 @@ const LANGUAGES: { value: SupportedLocale; labelKey: "settingsLanguageEn" | "set
 ];
 
 export default function SettingsPage() {
-  const { theme, language, t, setTheme, setLanguage } = usePreferences();
+  const { theme, language, timezone, t, setTheme, setLanguage, setTimezonePreference } = usePreferences();
   const { user, signOut } = useAuth();
+  const [tzQuery, setTzQuery] = useState("");
+  const [tzResults, setTzResults] = useState<TimezoneOption[]>([]);
+  const [showTzDropdown, setShowTzDropdown] = useState(false);
+  const tzInputRef = useRef<HTMLInputElement>(null);
+  const tzContainerRef = useRef<HTMLDivElement>(null);
+
+  // Search timezones as user types
+  useEffect(() => {
+    if (tzQuery.trim()) {
+      setTzResults(searchTimezones(tzQuery));
+      setShowTzDropdown(true);
+    } else {
+      setTzResults([]);
+      setShowTzDropdown(false);
+    }
+  }, [tzQuery]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (tzContainerRef.current && !tzContainerRef.current.contains(e.target as Node)) {
+        setShowTzDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
     <div className="px-4 py-4 md:px-6 md:py-6 max-w-md">
@@ -117,6 +146,83 @@ export default function SettingsPage() {
               </button>
             );
           })}
+        </div>
+      </section>
+
+      {/* Timezone section */}
+      <section className="mt-8">
+        <h3
+          className="text-xs font-semibold uppercase tracking-wide mb-3"
+          style={{ color: "var(--color-text-muted)" }}
+        >
+          {t.settingsTimezone}
+        </h3>
+
+        {/* Current timezone display */}
+        <div
+          className="px-4 py-3 rounded-xl mb-3 text-sm"
+          style={{
+            background: "var(--color-bg-secondary)",
+            border: "2px solid var(--color-accent)",
+            color: "var(--color-accent)",
+          }}
+        >
+          {formatTimezoneDisplay(timezone)}
+        </div>
+
+        {/* City search */}
+        <div ref={tzContainerRef} className="relative">
+          <input
+            ref={tzInputRef}
+            type="text"
+            value={tzQuery}
+            onChange={(e) => setTzQuery(e.target.value)}
+            placeholder={t.settingsTimezoneSearch}
+            className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+            style={{
+              background: "var(--color-bg-secondary)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-primary)",
+            }}
+            onFocus={() => { if (tzQuery.trim()) setShowTzDropdown(true); }}
+          />
+
+          {showTzDropdown && tzResults.length > 0 && (
+            <div
+              className="absolute z-10 left-0 right-0 mt-1 rounded-xl overflow-hidden shadow-lg"
+              style={{
+                background: "var(--color-bg-secondary)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              {tzResults.map((tz) => (
+                <button
+                  key={tz.id}
+                  onClick={() => {
+                    setTimezonePreference(tz.id);
+                    setTzQuery("");
+                    setShowTzDropdown(false);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm cursor-pointer transition-colors"
+                  style={{
+                    color: tz.id === timezone ? "var(--color-accent)" : "var(--color-text-primary)",
+                    borderBottom: "1px solid var(--color-border)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.target as HTMLElement).style.background = "var(--color-bg-tertiary, var(--color-border))";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.target as HTMLElement).style.background = "transparent";
+                  }}
+                >
+                  <span className="font-medium">{tz.city}</span>
+                  <span className="ml-2" style={{ color: "var(--color-text-muted)" }}>
+                    {tz.offset}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

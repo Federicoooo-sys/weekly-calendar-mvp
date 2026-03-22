@@ -1,7 +1,24 @@
 import type { DayOfWeek, DayInfo, TimeSlot, CalendarEvent } from "@/types";
 import { getStrings, getLocale, type LocaleStrings } from "@/constants/strings";
+import { getNowInTimezone } from "./timezone";
 
 export type EventTimingState = "upcoming" | "active" | "past";
+
+/** Module-level timezone. Set via setTimezone(). Defaults to browser local time. */
+let currentTimezone: string | null = null;
+
+/** Sets the timezone used by all date calculations in this module. */
+export function setTimezone(tz: string | null): void {
+  currentTimezone = tz;
+}
+
+/** Returns the current "now" respecting the configured timezone. */
+function now(): Date {
+  if (currentTimezone) {
+    return getNowInTimezone(currentTimezone);
+  }
+  return new Date();
+}
 
 /**
  * Safely parses "HH:mm" to [hours, minutes]. Returns null if malformed.
@@ -45,11 +62,11 @@ const DAY_LETTER_KEYS: Record<DayOfWeek, keyof LocaleStrings> = {
  * Returns the ISO date string (YYYY-MM-DD) of Monday for the current week.
  */
 export function getCurrentWeekStart(): string {
-  const now = new Date();
-  const jsDay = now.getDay(); // 0=Sun, 1=Mon, ...
+  const today = now();
+  const jsDay = today.getDay(); // 0=Sun, 1=Mon, ...
   const offset = jsDay === 0 ? -6 : 1 - jsDay;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + offset);
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + offset);
   return formatLocalDate(monday);
 }
 
@@ -90,8 +107,8 @@ export function getDateForDay(dayKey: DayOfWeek, weekStart: string): Date {
 export function getCurrentWeekDays(startDay: DayOfWeek = "mon"): DayInfo[] {
   const weekStart = getCurrentWeekStart();
   const days = getOrderedDays(startDay);
-  const now = new Date();
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const today = now();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   const s = getStrings();
   return days.map((dayKey) => {
@@ -118,11 +135,11 @@ export function getCurrentWeekDays(startDay: DayOfWeek = "mon"): DayInfo[] {
  */
 export function isToday(dayKey: DayOfWeek, weekStart: string): boolean {
   const dayDate = getDateForDay(dayKey, weekStart);
-  const now = new Date();
+  const today = now();
   return (
-    dayDate.getFullYear() === now.getFullYear() &&
-    dayDate.getMonth() === now.getMonth() &&
-    dayDate.getDate() === now.getDate()
+    dayDate.getFullYear() === today.getFullYear() &&
+    dayDate.getMonth() === today.getMonth() &&
+    dayDate.getDate() === today.getDate()
   );
 }
 
@@ -131,9 +148,9 @@ export function isToday(dayKey: DayOfWeek, weekStart: string): boolean {
  */
 export function isPast(dayKey: DayOfWeek, weekStart: string): boolean {
   const dayDate = getDateForDay(dayKey, weekStart);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  return dayDate < now;
+  const today = now();
+  today.setHours(0, 0, 0, 0);
+  return dayDate < today;
 }
 
 // ─── Event timing ───
@@ -150,8 +167,8 @@ export function isPast(dayKey: DayOfWeek, weekStart: string): boolean {
  */
 export function getEventTimingState(event: CalendarEvent, weekStart: string): EventTimingState {
   const eventDate = getDateForDay(event.dayKey, weekStart);
-  const now = new Date();
-  const today = new Date(now);
+  const current = now();
+  const today = new Date(current);
   today.setHours(0, 0, 0, 0);
 
   const eventDay = new Date(eventDate);
@@ -172,7 +189,7 @@ export function getEventTimingState(event: CalendarEvent, weekStart: string): Ev
   const startParsed = parseTime(event.startTime);
   if (!startParsed) return "upcoming"; // Malformed time — treat as untimed
   const startMinutes = startParsed[0] * 60 + startParsed[1];
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const nowMinutes = current.getHours() * 60 + current.getMinutes();
 
   let endMinutes: number;
   const endParsed = event.endTime ? parseTime(event.endTime) : null;

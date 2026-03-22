@@ -119,6 +119,9 @@ const zh: LocaleStrings = {
   settingsLanguageEn: "English",
   settingsLanguageZh: "简体中文",
   settingsAppearance: "外观",
+  settingsTimezone: "时区",
+  settingsTimezoneSearch: "搜索城市...",
+  settingsTimezoneDetected: "自动检测",
 
   // Circle page (placeholder)
   navCircle: "圈子",
