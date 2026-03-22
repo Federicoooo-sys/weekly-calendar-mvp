@@ -4,6 +4,7 @@ const en = {
   // Navigation
   navWeek: "This Week",
   navHistory: "History",
+  navNotifications: "Notifications",
   navSettings: "Settings",
 
   // Current week page

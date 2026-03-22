@@ -6,6 +6,7 @@ const zh: LocaleStrings = {
   // Navigation
   navWeek: "本周",
   navHistory: "历史",
+  navNotifications: "通知",
   navSettings: "设置",
 
   // Current week page

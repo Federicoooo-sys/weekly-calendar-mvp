@@ -14,6 +14,7 @@ export default function Sidebar({ unreadCount = 0 }: { unreadCount?: number }) {
     { href: "/", label: t.navWeek },
     { href: "/history", label: t.navHistory },
     { href: "/circle", label: t.navCircle },
+    { href: "/notifications", label: t.navNotifications },
     { href: "/settings", label: t.navSettings },
   ];
 
@@ -51,7 +52,7 @@ export default function Sidebar({ unreadCount = 0 }: { unreadCount?: number }) {
               >
                 <span className="flex items-center gap-2">
                   {item.label}
-                  {item.href === "/circle" && unreadCount > 0 && (
+                  {item.href === "/notifications" && unreadCount > 0 && (
                     <span
                       className="w-2 h-2 rounded-full shrink-0"
                       style={{ background: "var(--color-accent)" }}
